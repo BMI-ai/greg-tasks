@@ -20,7 +20,6 @@
     padding:10px 12px; font-size:14px;
   }
   input[type="date"]{ padding:9px 10px; }
-  input[type="datetime-local"]{ padding:9px 10px; }
 
   button { cursor:pointer; }
   button:hover { border-color:#3b3f4b; transform: translateY(-0.5px); }
@@ -109,43 +108,79 @@
   .badge-on{ color:#b7f1c2; border:1px solid #2f5; padding:1px 6px; border-radius:999px; font-size:11px;}
   .badge-late{ color:#ffb0b0; border:1px solid #ff7b7b; padding:1px 6px; border-radius:999px; font-size:11px;}
 
-  /* Toggle headers */
-  .mini-btn{
-    background:#12141a; border:1px solid #2a2d36; color:#e6e6e6;
-    border-radius:999px; padding:4px 8px; font-size:12px; cursor:pointer;
+  .authbar-wrap {
+    margin-top: 8px;
+    border:1px solid #1f2026;
+    border-radius: 12px;
+    padding: 8px 10px;
+    background:#111319;
   }
-  .mini-btn:hover{ border-color:#3b3f4b; }
-  .addbar-head{
-    display:flex; justify-content:space-between; align-items:center;
-    margin-top:10px;
+  .authbar {
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .authbar small {
+    font-size:11px;
+    color:#8e94a3;
+  }
+  .authbar input[type="email"] {
+    min-width: 180px;
+  }
+  .authbar-status {
+    font-size:11px;
+    color:#8e94a3;
+  }
+  .authbar.hidden-inner .auth-inputs {
+    display:none;
+  }
+  .auth-inputs {
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
   }
 
-  /* ---- Custom white calendar icon system ---- */
-  .date-wrap{
-    position:relative;
+  .addbar-head{
+    margin-top: 10px;
     display:flex;
     align-items:center;
+    justify-content:space-between;
   }
-  .date-wrap input{
-    width:100%;
-    padding-right:36px; /* room for icon */
+  .mini-btn{
+    border-radius:999px;
+    padding:2px 6px;
+    font-size:11px;
+    line-height:1;
   }
-  .date-btn{
+  .addbar-collapsed #addbar{
+    display:none;
+  }
+
+  /* Date & datetime picker custom icon */
+  .date-wrapper{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+  }
+  .date-wrapper input[type="date"],
+  .date-wrapper input[type="datetime-local"]{
+    padding-right:32px;
+  }
+  .date-wrapper .calendar-icon,
+  .date-wrapper .clock-icon{
     position:absolute;
-    right:8px;
-    top:50%;
-    transform:translateY(-50%);
-    background:transparent;
-    border:0;
-    padding:0;
-    width:20px;
-    height:20px;
-    cursor:pointer;
-    color:#e6e6e6;
+    right:10px;
+    width:16px;
+    height:16px;
+    pointer-events:none;
+    color:#ffffff;
   }
-  .date-btn svg{
-    width:18px;
-    height:18px;
+  .date-wrapper .calendar-icon svg,
+  .date-wrapper .clock-icon svg{
+    width:100%;
+    height:100%;
     fill:currentColor;
     display:block;
   }
@@ -160,29 +195,99 @@
     opacity:0;
     display:block;
   }
+
+  /* Mobile tweaks for iPhone / small screens */
+  @media (max-width: 600px) {
+    header {
+      padding: 10px 12px;
+    }
+    main {
+      padding: 8px 12px 24px;
+    }
+    h1 {
+      font-size: 18px;
+    }
+    .row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .field {
+      width: 100%;
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+    }
+    .authbar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+    }
+    .authbar small {
+      margin-top: 2px;
+    }
+    .authbar input[type="email"] {
+      width: 100%;
+    }
+    .authbar button {
+      width: 100%;
+      justify-content: center;
+    }
+    .tabs {
+      overflow-x: auto;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+    .stats {
+      flex-direction: column;
+    }
+    .stat {
+      width: 100%;
+    }
+    .cat {
+      padding: 8px 10px;
+    }
+    .task {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    .task > input[type="checkbox"] {
+      margin-top: 4px;
+    }
+    .right {
+      width: 100%;
+      justify-content: flex-end;
+    }
+    .right button {
+      padding: 6px 10px;
+    }
+  }
 </style>
 </head>
 <body>
-
 <header>
   <h1>Greg Tasks</h1>
-  <button class="mini-btn" id="authMiniBtn" title="Show account bar">Account</button>
 
-  <!-- Auth Bar -->
-  <div class="row" id="authbar" style="margin-top:8px;">
-    <div class="field" style="flex:1; min-width:220px;">
-      <label>Email for Magic Link</label>
-      <input id="authEmail" placeholder="you@domain.com" type="email"/>
-    </div>
-    <button id="authSendBtn" title="Send magic link">Send Link</button>
-    <button id="authLogoutBtn" style="display:none;">Logout</button>
-    <div class="field" style="margin-left:auto;">
-      <label>Status</label>
-      <div class="muted" id="authStatus">Not logged in (local only)</div>
+  <!-- Auth + login bar -->
+  <div class="authbar-wrap" id="authbarWrap">
+    <div class="authbar" id="authbar">
+      <div class="auth-inputs" id="authInputs">
+        <small>Login (magic link):</small>
+        <input id="emailInput" type="email" placeholder="you@example.com" />
+        <button id="sendLinkBtn" type="button">Send magic link</button>
+        <button id="logoutBtn" type="button" style="display:none;">Logout</button>
+      </div>
+      <div class="authbar-status" id="authStatus">Not logged in (local only)</div>
+      <button id="authHideBtn" class="mini-btn" type="button" title="Hide/show login bar">▴</button>
     </div>
   </div>
 
-  <!-- Add Task Row -->
+  <!-- Add Task Row with labels -->
   <div class="addbar-head">
     <span class="muted">New Task</span>
     <button class="mini-btn" id="addToggleBtn" title="Hide/show new task bar">▴</button>
@@ -227,13 +332,16 @@
 
     <div class="field">
       <label>Due Date</label>
-      <div class="date-wrap">
+      <div class="date-wrapper">
         <input id="taskDue" type="date" />
-        <button class="date-btn" type="button" data-for="taskDue" aria-label="Pick due date">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm12 8H5v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9ZM6 8h12V7a1 1 0 0 0-1-1h-1v1a1 1 0 1 1-2 0V6H8v1a1 1 0 1 1-2 0V6H6a1 1 0 0 0-1 1v1Z"/>
+        <span class="calendar-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <path d="M3 10h18"></path>
+            <path d="M9 3v4"></path>
+            <path d="M15 3v4"></path>
           </svg>
-        </button>
+        </span>
       </div>
     </div>
 
@@ -266,13 +374,16 @@
 
       <label>
         Due date
-        <div class="date-wrap">
+        <div class="date-wrapper">
           <input id="mDue" type="date" />
-          <button class="date-btn" type="button" data-for="mDue" aria-label="Pick due date">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm12 8H5v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9ZM6 8h12V7a1 1 0 0 0-1-1h-1v1a1 1 0 1 1-2 0V6H8v1a1 1 0 1 1-2 0V6H6a1 1 0 0 0-1 1v1Z"/>
+          <span class="calendar-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+              <path d="M3 10h18"></path>
+              <path d="M9 3v4"></path>
+              <path d="M15 3v4"></path>
             </svg>
-          </button>
+          </span>
         </div>
       </label>
 
@@ -298,14 +409,15 @@
       </label>
 
       <label>
-        Reminder
-        <div class="date-wrap">
+        Reminder (YYYY-MM-DD HH:MM)
+        <div class="date-wrapper">
           <input id="mRemind" type="datetime-local" />
-          <button class="date-btn" type="button" data-for="mRemind" aria-label="Pick reminder">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm12 8H5v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9ZM6 8h12V7a1 1 0 0 0-1-1h-1v1a1 1 0 1 1-2 0V6H8v1a1 1 0 1 1-2 0V6H6a1 1 0 0 0-1 1v1Z"/>
+          <span class="clock-icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 7v5l3 3"></path>
             </svg>
-          </button>
+          </span>
         </div>
       </label>
 
@@ -329,788 +441,761 @@
   </div>
 </div>
 
-<script>
-const STORAGE_KEY = "greg_tasks_v7";
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-/* -------------------- SUPABASE CONFIG -------------------- */
-/* Put YOUR project URL + anon key here */
-const SUPA_URL  = "https://qezihsskloosuxgkjdpg.supabase.co";
-const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlemloc3NrbG9vc3V4Z2tqZHBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMTAwMDcsImV4cCI6MjA3OTU4NjAwN30.BYVSJEoctKV3xTx_nTU3Fl9JqeQ1GS4mhDkE8YJcUKU";
-/* --------------------------------------------------------- */
+  const SUPABASE_URL = "https://qezihsskloosuxgkjdpg.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlemloc3NrbG9vc3V4Z2tqZHBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMTAwMDcsImV4cCI6MjA3OTU4NjAwN30.BYVSJEoctKV3xTx_nTU3Fl9JqeQ1GS4mhDkE8YJcUKU";
 
-let supa = null;
-let supaUser = null;
-let supaReady = false;
+  const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function initSupabase(){
-  if(!SUPA_URL.includes("http") || SUPA_ANON.startsWith("PASTE_")) {
-    supaReady = false;
-    setAuthUI(false);
-    return;
-  }
-  const { createClient } = supabase;
-  supa = createClient(SUPA_URL, SUPA_ANON);
-  supaReady = true;
+  const STORAGE_KEY = "greg_tasks_state_json";
+  const VIEW_KEY = "greg_tasks_view";
+  const AUTHBAR_KEY = "greg_authbar_hidden";
+  const ADDBAR_KEY = "greg_addbar_collapsed";
 
-  const { data } = await supa.auth.getSession();
-  supaUser = data.session?.user || null;
-  setAuthUI(!!supaUser);
-
-  supa.auth.onAuthStateChange((_evt, session)=>{
-    supaUser = session?.user || null;
-    setAuthUI(!!supaUser);
-    if(supaUser){
-      syncFromCloud().then(()=>render());
-    }
-  });
-}
-
-const DEFAULTS = {
-  Daily: [
-    { text: "Email DD’s Buyers", done:false, due:null, remindAt:null, priority:"High", recurrence:"Daily", notes:"", completedAt:null },
-    { text: "Send emails to various buyers from Salesforce", done:false, due:null, remindAt:null, priority:"High", recurrence:"Daily", notes:"", completedAt:null },
-    { text: "Container follow-ups (Option Care / shipments)", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"Daily", notes:"", completedAt:null },
-    { text: "General sales outreach", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"Daily", notes:"", completedAt:null }
-  ],
-  Weekly: [
-    { text: "Print invoices", done:false, note:"Thu", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
-    { text: "Print payroll checks", done:false, note:"Thu", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
-    { text: "Update inventory numbers", done:false, note:"Fri", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
-    { text: "Review financials", done:false, note:"Fri", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
-    { text: "Email listed stores", done:false, note:"Tue–Fri", due:null, remindAt:null, priority:"Medium", recurrence:"Weekly", notes:"", completedAt:null }
-  ],
-  Monthly: [
-    { text: "Pay rent for 150 Randolph", done:false, due:null, remindAt:null, priority:"High", recurrence:"Monthly", notes:"", completedAt:null },
-    { text: "Pay trash people", done:false, due:null, remindAt:null, priority:"High", recurrence:"Monthly", notes:"", completedAt:null },
-    { text: "Pay Con Edison", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"Monthly", notes:"", completedAt:null },
-    { text: "Pay SBA loan", done:false, due:null, remindAt:null, priority:"High", recurrence:"Monthly", notes:"", completedAt:null }
-  ],
-  "One-Off": [
-    { text: "Look up insurance contacts for disability & workers comp", done:false, due:null, remindAt:null, priority:"Low", recurrence:"None", notes:"", completedAt:null },
-    { text: "Update the website (hire consultant)", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"None", notes:"", completedAt:null },
-    { text: "Optum payment", done:false, due:null, remindAt:null, priority:"High", recurrence:"None", notes:"", completedAt:null },
-    { text: "Send samples to AtHome", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"None", notes:"", completedAt:null },
-    { text: "Follow up with Shannon at Boscov’s (clear protectors)", done:false, due:null, remindAt:null, priority:"High", recurrence:"None", notes:"", completedAt:null }
-  ]
-};
-
-const VIEWS = ["Today","All","Overdue","Daily","Weekly","Monthly","One-Off","Completed"];
-
-function nowISO(){ return new Date().toISOString(); }
-function todayYMD(){
-  const d = new Date(); d.setHours(0,0,0,0);
-  return d.toISOString().slice(0,10);
-}
-function parseYMD(s){ if(!s) return null; const d=new Date(s+"T00:00:00"); return isNaN(d)?null:d; }
-function addDaysYMD(ymd, days){
-  const d = parseYMD(ymd || todayYMD());
-  d.setDate(d.getDate()+days);
-  return d.toISOString().slice(0,10);
-}
-function addMonthsYMD(ymd, months){
-  const d = parseYMD(ymd || todayYMD());
-  const nm = new Date(d.getFullYear(), d.getMonth()+months, d.getDate());
-  return nm.toISOString().slice(0,10);
-}
-
-// Weekly helpers
-const WEEKDAYS = {Sun:0, Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6};
-function nextWeekdayDue(note, fromDateYMD){
-  const from = parseYMD(fromDateYMD || todayYMD());
-  const todayN = from.getDay();
-  if(!note){
-    const d = new Date(from); d.setDate(d.getDate()+7);
-    return d.toISOString().slice(0,10);
-  }
-  if(note.includes("–") || note.includes("-")){
-    const parts = note.replace("-", "–").split("–").map(s=>s.trim().slice(0,3));
-    const start = WEEKDAYS[parts[0]] ?? 1;
-    const end = WEEKDAYS[parts[1]] ?? 5;
-    for(let offset=0; offset<=7; offset++){
-      const d = new Date(from); d.setDate(d.getDate()+offset);
-      const wd = d.getDay();
-      if(wd>=start && wd<=end) return d.toISOString().slice(0,10);
-    }
-  }
-  const key = note.trim().slice(0,3);
-  const target = WEEKDAYS[key];
-  if(target===undefined){
-    const d = new Date(from); d.setDate(d.getDate()+7);
-    return d.toISOString().slice(0,10);
-  }
-  let diff = target - todayN;
-  if(diff<=0) diff += 7;
-  const d = new Date(from); d.setDate(d.getDate()+diff);
-  return d.toISOString().slice(0,10);
-}
-function nextFirstOfMonth(fromDateYMD){
-  const d = parseYMD(fromDateYMD || todayYMD());
-  const nm = new Date(d.getFullYear(), d.getMonth()+1, 1);
-  return nm.toISOString().slice(0,10);
-}
-
-// Status helpers
-function isOverdue(task){
-  if(task.done || !task.due) return false;
-  const due=parseYMD(task.due); if(!due) return false;
-  const t=parseYMD(todayYMD());
-  return due < t;
-}
-function isDueSoon(task){
-  if(task.done || !task.due) return false;
-  const due=parseYMD(task.due); if(!due) return false;
-  const t=parseYMD(todayYMD());
-  const in3=new Date(t); in3.setDate(in3.getDate()+3);
-  return due >= t && due <= in3;
-}
-function completedOnTime(task){
-  if(!task.done || !task.due || !task.completedAt) return null;
-  const due=parseYMD(task.due);
-  const comp=new Date(task.completedAt);
-  if(!due || isNaN(comp)) return null;
-  const dueEnd=new Date(due); dueEnd.setHours(23,59,59,999);
-  return comp <= dueEnd;
-}
-
-// Auto reminder if due exists
-function autoReminderForDue(dueYMD){
-  if(!dueYMD) return null;
-  return `${dueYMD} 09:00`;
-}
-function ensureAutoReminder(task){
-  if(task.due && !task.remindAt && !task.done){
-    task.remindAt = autoReminderForDue(task.due);
-  }
-}
-
-// datetime-local helpers
-function toDTLocal(remindAt){
-  if(!remindAt) return "";
-  return remindAt.replace(" ", "T");
-}
-function fromDTLocal(val){
-  if(!val) return null;
-  return val.replace("T", " ");
-}
-
-// Notifications
-function canNotify(){ return "Notification" in window; }
-async function requestNotify(){
-  if(!canNotify()) return false;
-  if(Notification.permission==="granted") return true;
-  if(Notification.permission==="denied") return false;
-  const p = await Notification.requestPermission();
-  return p==="granted";
-}
-function notify(title, body){
-  if(canNotify() && Notification.permission==="granted"){
-    new Notification(title, { body });
-  } else {
-    alert(title + "\n" + body);
-  }
-}
-
-// Storage + migration
-function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return structuredClone(DEFAULTS);
-    const data = JSON.parse(raw);
-    for (const cat in data){
-      data[cat].forEach(t=>{
-        if(t.due===undefined) t.due=null;
-        if(t.completedAt===undefined) t.completedAt=null;
-        if(t.remindAt===undefined) t.remindAt=null;
-        if(t.note===undefined) t.note=null;
-        if(t.priority===undefined) t.priority="Medium";
-        if(t.recurrence===undefined) t.recurrence = (cat==="One-Off") ? "None" : cat;
-        if(t.notes===undefined) t.notes="";
-        ensureAutoReminder(t);
-      });
-    }
-    return data;
-  } catch {
-    return structuredClone(DEFAULTS);
-  }
-}
-function save(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-let state = load();
-
-// Elements
-const app = document.getElementById("app");
-const taskText = document.getElementById("taskText");
-const taskCat = document.getElementById("taskCat");
-const taskPrio = document.getElementById("taskPrio");
-const taskRecur = document.getElementById("taskRecur");
-const taskDue = document.getElementById("taskDue");
-const tabsEl = document.getElementById("tabs");
-const statsEl = document.getElementById("stats");
-
-const addbar = document.getElementById("addbar");
-const addToggleBtn = document.getElementById("addToggleBtn");
-const authbar = document.getElementById("authbar");
-const authMiniBtn = document.getElementById("authMiniBtn");
-
-const ADD_COLLAPSED_KEY = "greg_addbar_collapsed";
-const AUTH_COLLAPSED_KEY = "greg_authbar_collapsed";
-
-function setAddbarCollapsed(collapsed){
-  if(collapsed){
-    addbar.style.display = "none";
-    addToggleBtn.textContent = "▾";
-  } else {
-    addbar.style.display = "flex";
-    addToggleBtn.textContent = "▴";
-  }
-  localStorage.setItem(ADD_COLLAPSED_KEY, collapsed ? "1" : "0");
-}
-addToggleBtn.onclick = ()=> {
-  const collapsed = addbar.style.display !== "none";
-  setAddbarCollapsed(collapsed);
-};
-setAddbarCollapsed(localStorage.getItem(ADD_COLLAPSED_KEY)==="1");
-
-function setAuthbarCollapsed(collapsed){
-  if(collapsed){
-    authbar.style.display = "none";
-    authMiniBtn.style.display = "";
-  } else {
-    authbar.style.display = "flex";
-    authMiniBtn.style.display = "none";
-  }
-  localStorage.setItem(AUTH_COLLAPSED_KEY, collapsed ? "1" : "0");
-}
-authMiniBtn.onclick = ()=> setAuthbarCollapsed(false);
-
-// ---- Custom date button hooks ----
-function hookDateButtons(){
-  document.querySelectorAll(".date-btn").forEach(btn=>{
-    const id = btn.getAttribute("data-for");
-    const input = document.getElementById(id);
-    if(!input) return;
-    btn.addEventListener("click", ()=>{
-      if (input.showPicker) input.showPicker();
-      else input.focus();
-    });
-  });
-}
-hookDateButtons();
-
-let activeView = "Today";
-function setActiveView(v){ activeView=v; renderTabs(); render(); }
-
-// Add task
-document.getElementById("addBtn").onclick = () => {
-  const text = taskText.value.trim();
-  if (!text) return;
-  const cat = taskCat.value;
-  const prio = taskPrio.value;
-  const recurrence = taskRecur.value;
-  const due = taskDue.value ? taskDue.value : null;
-
-  const task = { text, done:false, due, remindAt:null, priority: prio, recurrence, notes:"", completedAt:null };
-  ensureAutoReminder(task);
-
-  state[cat] = state[cat] || [];
-  state[cat].push(task);
-
-  taskText.value = "";
-  taskDue.value = "";
-  save(state);
-  if(supaUser) syncToCloud();
-  render();
-};
-
-document.getElementById("clearDoneBtn").onclick = () => {
-  for (const cat in state) state[cat] = state[cat].filter(t => !t.done);
-  save(state);
-  if(supaUser) syncToCloud();
-  render();
-};
-
-document.getElementById("resetBtn").onclick = () => {
-  state = structuredClone(DEFAULTS);
-  save(state);
-  if(supaUser) syncToCloud();
-  setActiveView("Today");
-};
-
-document.getElementById("exportBtn").onclick = () => {
-  const payload = { exportedAt: nowISO(), version: "v7", tasks: state };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "greg_tasks_export.json";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-};
-
-document.getElementById("importFile").addEventListener("change", async (e) => {
-  const file = e.target.files?.[0];
-  if(!file) return;
-  try{
-    const text = await file.text();
-    const parsed = JSON.parse(text);
-    const imported = parsed.tasks || parsed;
-    if(typeof imported !== "object" || Array.isArray(imported)) throw new Error("bad format");
-
-    const clean = {};
-    for(const [cat, arr] of Object.entries(imported)){
-      if(!Array.isArray(arr)) continue;
-      clean[cat] = arr.map(t=>{
-        const task = {
-          text: String(t.text||"").trim() || "(untitled task)",
-          done: !!t.done,
-          note: t.note ?? null,
-          due: t.due ?? null,
-          remindAt: t.remindAt ?? null,
-          priority: t.priority ?? "Medium",
-          recurrence: t.recurrence ?? ((cat==="One-Off")?"None":cat),
-          notes: String(t.notes||""),
-          completedAt: t.completedAt ?? (t.done ? nowISO() : null)
-        };
-        ensureAutoReminder(task);
-        return task;
-      });
-    }
-    for(const cat of Object.keys(DEFAULTS)){
-      if(!clean[cat]) clean[cat] = structuredClone(DEFAULTS[cat]);
-    }
-    state = clean;
-    save(state);
-    if(supaUser) syncToCloud();
-    setActiveView("Today");
-  } catch(err){
-    alert("Import failed. Make sure it's a valid greg_tasks_export.json file.");
-  } finally {
-    e.target.value = "";
-  }
-});
-
-// Recurrence rollover
-function computeNextDueFromRecurrence(task){
-  const base = task.due || todayYMD();
-  const r = (task.recurrence||"None").toLowerCase();
-  if(r==="none") return null;
-  if(r==="daily") return addDaysYMD(base, 1);
-  if(r==="weekly") return nextWeekdayDue(task.note, addDaysYMD(base,1));
-  if(r==="monthly") return nextFirstOfMonth(base);
-  if(r==="quarterly") return addMonthsYMD(base, 3);
-  if(r==="annual" || r==="yearly") return addMonthsYMD(base, 12);
-  return null;
-}
-function rolloverIfRecurring(cat, task){
-  const nextDue = computeNextDueFromRecurrence(task);
-  if(!nextDue) return;
-  const nextTask = {
-    text: task.text,
-    done:false,
-    note: task.note ?? null,
-    due: nextDue,
-    remindAt: null,
-    priority: task.priority ?? "Medium",
-    recurrence: task.recurrence ?? "None",
-    notes: task.notes ?? "",
-    completedAt: null
+  const DEFAULTS = {
+    Daily: [
+      { text: "Email DD’s Buyers", done:false, due:null, remindAt:null, priority:"High", recurrence:"Daily", notes:"", completedAt:null },
+      { text: "Send emails to various buyers from Salesforce", done:false, due:null, remindAt:null, priority:"High", recurrence:"Daily", notes:"", completedAt:null },
+      { text: "Container follow-ups (Option Care / shipments)", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"Daily", notes:"", completedAt:null },
+      { text: "General sales outreach", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"Daily", notes:"", completedAt:null }
+    ],
+    Weekly: [
+      { text: "Print invoices", done:false, note:"Thu", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
+      { text: "Print payroll checks", done:false, note:"Thu", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
+      { text: "Update inventory numbers", done:false, note:"Fri", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
+      { text: "Review financials", done:false, note:"Fri", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
+      { text: "Email listed stores", done:false, note:"Tue–Fri", due:null, remindAt:null, priority:"Medium", recurrence:"Weekly", notes:"", completedAt:null }
+    ],
+    Monthly: [
+      { text: "Pay rent for 150 Randolph", done:false, due:null, remindAt:null, priority:"High", recurrence:"Monthly", notes:"", completedAt:null },
+      { text: "Pay trash people", done:false, due:null, remindAt:null, priority:"High", recurrence:"Monthly", notes:"", completedAt:null },
+      { text: "Pay Con Edison", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"Monthly", notes:"", completedAt:null },
+      { text: "Pay SBA loan", done:false, due:null, remindAt:null, priority:"High", recurrence:"Monthly", notes:"", completedAt:null }
+    ],
+    "One-Off": [
+      { text: "Look up insurance contacts for disability & workers comp", done:false, due:null, remindAt:null, priority:"Low", recurrence:"None", notes:"", completedAt:null },
+      { text: "Update the website (hire consultant)", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"None", notes:"", completedAt:null },
+      { text: "Optum payment", done:false, due:null, remindAt:null, priority:"High", recurrence:"None", notes:"", completedAt:null },
+      { text: "Send samples to AtHome", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"None", notes:"", completedAt:null },
+      { text: "Follow up with Shannon at Boscov’s (clear protectors)", done:false, due:null, remindAt:null, priority:"High", recurrence:"None", notes:"", completedAt:null }
+    ]
   };
-  ensureAutoReminder(nextTask);
-  state[cat].push(nextTask);
-}
 
-// Task actions
-function toggle(cat, idx){
-  const t = state[cat][idx];
-  const newDone = !t.done;
-  t.done = newDone;
-  t.completedAt = newDone ? nowISO() : null;
-  if(newDone){
-    t.remindAt = null;
-    rolloverIfRecurring(cat, t);
-  } else {
-    ensureAutoReminder(t);
+  const VIEWS = ["Today","All","Overdue","Daily","Weekly","Monthly","One-Off","Completed"];
+
+  function nowISO(){ return new Date().toISOString(); }
+  function todayYMD(){
+    const d = new Date(); d.setHours(0,0,0,0);
+    return d.toISOString().slice(0,10);
   }
-  save(state);
-  if(supaUser) syncToCloud();
-  render();
-}
-function removeTask(cat, idx){
-  state[cat].splice(idx,1);
-  save(state);
-  if(supaUser) syncToCloud();
-  render();
-}
-function move(cat, idx, dir){
-  const arr = state[cat];
-  const ni = idx + dir;
-  if (ni < 0 || ni >= arr.length) return;
-  [arr[idx], arr[ni]] = [arr[ni], arr[idx]];
-  save(state);
-  if(supaUser) syncToCloud();
-  render();
-}
-function snooze(cat, idx, days){
-  const t = state[cat][idx];
-  const base = t.due && parseYMD(t.due) ? t.due : todayYMD();
-  t.due = addDaysYMD(base, days);
-  t.remindAt = autoReminderForDue(t.due);
-  save(state);
-  if(supaUser) syncToCloud();
-  render();
-}
-
-// ---- Modal logic ----
-const modalBackdrop = document.getElementById("modalBackdrop");
-const mText   = document.getElementById("mText");
-const mDue    = document.getElementById("mDue");
-const mPrio   = document.getElementById("mPrio");
-const mRecur  = document.getElementById("mRecur");
-const mRemind = document.getElementById("mRemind");
-const mNote   = document.getElementById("mNote");
-const mNotes  = document.getElementById("mNotes");
-const mCancel = document.getElementById("mCancel");
-const mSave   = document.getElementById("mSave");
-const mHistory= document.getElementById("mHistory");
-const modalTitle = document.getElementById("modalTitle");
-let modalRef = null;
-
-function openModal(cat, idx){
-  const t = state[cat][idx];
-  modalRef = {cat, idx};
-
-  modalTitle.textContent = `Task Details • ${cat}`;
-
-  mText.value   = t.text || "";
-  mDue.value    = t.due || "";
-  mPrio.value   = t.priority || "Medium";
-  mRecur.value  = t.recurrence || "None";
-  mRemind.value = toDTLocal(t.remindAt) || "";
-  mNote.value   = t.note || "";
-  mNotes.value  = t.notes || "";
-
-  const history = (state[cat]||[])
-    .filter(x => x.text === t.text && x.done && x.completedAt)
-    .sort((a,b)=> new Date(b.completedAt) - new Date(a.completedAt));
-
-  if(history.length){
-    mHistory.style.display = "block";
-    mHistory.innerHTML = `<h4>Completion History (${history.length})</h4>` +
-      history.map(h=>{
-        const onTime = completedOnTime(h);
-        const badge = onTime===true ? `<span class="badge-on">on-time</span>` :
-                      onTime===false? `<span class="badge-late">late</span>` : "";
-        const when = new Date(h.completedAt).toLocaleString();
-        const due = h.due ? `due ${h.due}` : "no due";
-        return `<div class="history-item">
-                  <div>${when} <span class="muted">(${due})</span></div>
-                  <div>${badge}</div>
-                </div>`;
-      }).join("");
-  } else {
-    mHistory.style.display = "none";
-    mHistory.innerHTML = "";
+  function parseYMD(s){ if(!s) return null; const d=new Date(s+"T00:00:00"); return isNaN(d)?null:d; }
+  function addDaysYMD(ymd, days){
+    const d = parseYMD(ymd || todayYMD());
+    d.setDate(d.getDate()+days);
+    return d.toISOString().slice(0,10);
+  }
+  function addMonthsYMD(ymd, months){
+    const d = parseYMD(ymd || todayYMD());
+    const nm = new Date(d.getFullYear(), d.getMonth()+months, d.getDate());
+    return nm.toISOString().slice(0,10);
   }
 
-  modalBackdrop.style.display = "flex";
-}
+  const WEEKDAYS = {Sun:0, Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6};
+  function nextWeekdayDue(note, fromDateYMD){
+    const from = parseYMD(fromDateYMD || todayYMD());
+    const todayN = from.getDay();
+    if(!note){
+      const d = new Date(from); d.setDate(d.getDate()+7);
+      return d.toISOString().slice(0,10);
+    }
+    if(note.includes("–") || note.includes("-")){
+      const parts = note.replace("-", "–").split("–").map(s=>s.trim().slice(0,3));
+      const start = WEEKDAYS[parts[0]] ?? 1;
+      const end = WEEKDAYS[parts[1]] ?? 5;
+      for(let offset=0; offset<=7; offset++){
+        const d = new Date(from); d.setDate(d.getDate()+offset);
+        const wd = d.getDay();
+        if(wd>=start && wd<=end) return d.toISOString().slice(0,10);
+      }
+    }
+    const key = note.trim().slice(0,3);
+    const target = WEEKDAYS[key];
+    if(target===undefined){
+      const d = new Date(from); d.setDate(d.getDate()+7);
+      return d.toISOString().slice(0,10);
+    }
+    let diff = target - todayN;
+    if(diff<=0) diff += 7;
+    const d = new Date(from); d.setDate(d.getDate()+diff);
+    return d.toISOString().slice(0,10);
+  }
+  function nextFirstOfMonth(fromDateYMD){
+    const d = parseYMD(fromDateYMD || todayYMD());
+    const nm = new Date(d.getFullYear(), d.getMonth()+1, 1);
+    return nm.toISOString().slice(0,10);
+  }
 
-function closeModal(){
-  modalBackdrop.style.display = "none";
-  modalRef = null;
-}
+  function isOverdue(task){
+    if(task.done || !task.due) return false;
+    const due=parseYMD(task.due); if(!due) return false;
+    const t=parseYMD(todayYMD());
+    return due < t;
+  }
+  function isDueSoon(task){
+    if(task.done || !task.due) return false;
+    const due=parseYMD(task.due); if(!due) return false;
+    const t=parseYMD(todayYMD());
+    const in3=new Date(t); in3.setDate(in3.getDate()+3);
+    return due >= t && due <= in3;
+  }
+  function completedOnTime(task){
+    if(!task.done || !task.due || !task.completedAt) return null;
+    const due=parseYMD(task.due);
+    const comp=new Date(task.completedAt);
+    if(!due || isNaN(comp)) return null;
+    const dueEnd=new Date(due); dueEnd.setHours(23,59,59,999);
+    return comp <= dueEnd;
+  }
 
-mCancel.onclick = closeModal;
-modalBackdrop.onclick = (e)=>{ if(e.target === modalBackdrop) closeModal(); };
+  function autoReminderForDue(dueYMD){
+    if(!dueYMD) return null;
+    return `${dueYMD} 09:00`;
+  }
+  function ensureAutoReminder(task){
+    if(task.due && !task.remindAt && !task.done){
+      task.remindAt = autoReminderForDue(task.due);
+    }
+  }
 
-mSave.onclick = ()=>{
-  if(!modalRef) return;
-  const {cat, idx} = modalRef;
-  const t = state[cat][idx];
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return structuredClone(DEFAULTS);
+      const data = JSON.parse(raw);
+      for (const cat of Object.keys(DEFAULTS)) {
+        if (!data[cat]) data[cat] = structuredClone(DEFAULTS[cat]);
+      }
+      for (const cat in data){
+        data[cat].forEach(t=>{
+          if(t.due===undefined) t.due=null;
+          if(t.completedAt===undefined) t.completedAt=null;
+          if(t.remindAt===undefined) t.remindAt=null;
+          if(t.note===undefined) t.note=null;
+          if(t.priority===undefined) t.priority="Medium";
+          if(t.recurrence===undefined) t.recurrence = (cat==="One-Off") ? "None" : cat;
+          if(t.notes===undefined) t.notes="";
+          ensureAutoReminder(t);
+        });
+      }
+      return data;
+    } catch {
+      return structuredClone(DEFAULTS);
+    }
+  }
+  function saveLocal(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 
-  t.text = mText.value.trim() || t.text;
-  t.due  = mDue.value || null;
-  t.priority = mPrio.value;
-  t.recurrence = mRecur.value;
-  t.remindAt = fromDTLocal(mRemind.value) || null;
-  t.note = mNote.value.trim() || null;
-  t.notes = mNotes.value.trim();
+  let state = loadLocal();
+  let activeView = localStorage.getItem(VIEW_KEY) || "Today";
+  let supaUser = null;
 
-  ensureAutoReminder(t);
-  save(state);
-  if(supaUser) syncToCloud();
-  render();
-  closeModal();
-};
+  const app = document.getElementById("app");
+  const taskText = document.getElementById("taskText");
+  const taskCat = document.getElementById("taskCat");
+  const taskPrio = document.getElementById("taskPrio");
+  const taskRecur = document.getElementById("taskRecur");
+  const taskDue = document.getElementById("taskDue");
+  const tabsEl = document.getElementById("tabs");
+  const statsEl = document.getElementById("stats");
 
-// UI helpers
-function renderTabs(){
-  tabsEl.innerHTML = "";
-  VIEWS.forEach(v=>{
-    const b=document.createElement("div");
-    b.className="tab"+(v===activeView?" active":"");
-    b.textContent=v;
-    b.onclick=()=>setActiveView(v);
-    tabsEl.appendChild(b);
+  const authbarWrap = document.getElementById("authbarWrap");
+  const authbar = document.getElementById("authbar");
+  const authInputs = document.getElementById("authInputs");
+  const authStatus = document.getElementById("authStatus");
+  const authHideBtn = document.getElementById("authHideBtn");
+  const emailInput = document.getElementById("emailInput");
+  const sendLinkBtn = document.getElementById("sendLinkBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  const addbar = document.getElementById("addbar");
+  const addToggleBtn = document.getElementById("addToggleBtn");
+
+  const modalBackdrop = document.getElementById("modalBackdrop");
+  const mText   = document.getElementById("mText");
+  const mDue    = document.getElementById("mDue");
+  const mPrio   = document.getElementById("mPrio");
+  const mRecur  = document.getElementById("mRecur");
+  const mRemind = document.getElementById("mRemind");
+  const mNote   = document.getElementById("mNote");
+  const mNotes  = document.getElementById("mNotes");
+  const mCancel = document.getElementById("mCancel");
+  const mSave   = document.getElementById("mSave");
+  const mHistory= document.getElementById("mHistory");
+  const modalTitle = document.getElementById("modalTitle");
+  let modalRef = null;
+
+  function setActiveView(v){
+    activeView=v;
+    localStorage.setItem(VIEW_KEY, v);
+    renderTabs();
+    render();
+  }
+
+  document.getElementById("addBtn").onclick = () => {
+    const text = taskText.value.trim();
+    if (!text) return;
+    const cat = taskCat.value;
+    const prio = taskPrio.value;
+    const recurrence = taskRecur.value;
+    const due = taskDue.value ? taskDue.value : null;
+
+    const task = { text, done:false, due, remindAt:null, priority: prio, recurrence, notes:"", completedAt:null };
+    ensureAutoReminder(task);
+
+    state[cat] = state[cat] || [];
+    state[cat].push(task);
+
+    taskText.value = "";
+    taskDue.value = "";
+    saveAll();
+    render();
+  };
+
+  document.getElementById("clearDoneBtn").onclick = () => {
+    for (const cat in state) state[cat] = state[cat].filter(t => !t.done);
+    saveAll();
+    render();
+  };
+
+  document.getElementById("resetBtn").onclick = () => {
+    state = structuredClone(DEFAULTS);
+    saveAll();
+    setActiveView("Today");
+  };
+
+  document.getElementById("exportBtn").onclick = () => {
+    const payload = { exportedAt: nowISO(), version: "v7-json", tasks: state };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "greg_tasks_export.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  document.getElementById("importFile").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if(!file) return;
+    try{
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const imported = parsed.tasks || parsed;
+      if(typeof imported !== "object" || Array.isArray(imported)) throw new Error("bad format");
+
+      const clean = {};
+      for(const [cat, arr] of Object.entries(imported)){
+        if(!Array.isArray(arr)) continue;
+        clean[cat] = arr.map(t=>{
+          const task = {
+            text: String(t.text||"").trim() || "(untitled task)",
+            done: !!t.done,
+            note: t.note ?? null,
+            due: t.due ?? null,
+            remindAt: t.remindAt ?? null,
+            priority: t.priority ?? "Medium",
+            recurrence: t.recurrence ?? ((cat==="One-Off")?"None":cat),
+            notes: String(t.notes||""),
+            completedAt: t.completedAt ?? (t.done ? nowISO() : null)
+          };
+          ensureAutoReminder(task);
+          return task;
+        });
+      }
+      for(const cat of Object.keys(DEFAULTS)){
+        if(!clean[cat]) clean[cat] = structuredClone(DEFAULTS[cat]);
+      }
+      state = clean;
+      saveAll();
+      setActiveView("Today");
+    } catch(err){
+      alert("Import failed. Make sure it's a valid greg_tasks_export.json file.");
+    } finally {
+      e.target.value = "";
+    }
   });
-}
 
-function statsForTasks(allTasks){
-  const total = allTasks.length;
-  const done = allTasks.filter(t=>t.done).length;
-  const open = total - done;
-  const overdue = allTasks.filter(t=>isOverdue(t)).length;
-  const completedWithDue = allTasks.filter(t=>t.done && t.due);
-  const onTimeCount = completedWithDue.filter(t=>completedOnTime(t)===true).length;
-  const lateCount = completedWithDue.filter(t=>completedOnTime(t)===false).length;
-  const onTimeRate = completedWithDue.length ? Math.round((onTimeCount/completedWithDue.length)*100) : null;
-  return {total, done, open, overdue, onTimeCount, lateCount, onTimeRate};
-}
+  function computeNextDueFromRecurrence(task){
+    const base = task.due || todayYMD();
+    const r = (task.recurrence||"None").toLowerCase();
+    if(r==="none") return null;
+    if(r==="daily") return addDaysYMD(base, 1);
+    if(r==="weekly") return nextWeekdayDue(task.note, addDaysYMD(base,1));
+    if(r==="monthly") return nextFirstOfMonth(base);
+    if(r==="quarterly") return addMonthsYMD(base, 3);
+    if(r==="annual" || r==="yearly") return addMonthsYMD(base, 12);
+    return null;
+  }
+  function rolloverIfRecurring(cat, task){
+    const nextDue = computeNextDueFromRecurrence(task);
+    if(!nextDue) return;
+    const nextTask = {
+      text: task.text,
+      done:false,
+      note: task.note ?? null,
+      due: nextDue,
+      remindAt: null,
+      priority: task.priority ?? "Medium",
+      recurrence: task.recurrence ?? "None",
+      notes: task.notes ?? "",
+      completedAt: null
+    };
+    ensureAutoReminder(nextTask);
+    state[cat].push(nextTask);
+  }
 
-function renderStats(){
-  const allTasks = Object.values(state).flat();
-  const s = statsForTasks(allTasks);
-  statsEl.innerHTML = `
-    <div class="stat">Total: <b>${s.total}</b></div>
-    <div class="stat">Open: <b>${s.open}</b></div>
-    <div class="stat">Done: <b>${s.done}</b></div>
-    <div class="stat">Overdue: <b>${s.overdue}</b></div>
-    <div class="stat">On-time completions: <b>${s.onTimeCount}</b>${s.onTimeRate!==null?` <span class="muted">(${s.onTimeRate}%)</span>`:""}</div>
-    ${s.lateCount?`<div class="stat">Late completions: <b>${s.lateCount}</b></div>`:""}
-  `;
-}
+  function toggle(cat, idx){
+    const t = state[cat][idx];
+    const newDone = !t.done;
+    t.done = newDone;
+    t.completedAt = newDone ? nowISO() : null;
+    if(newDone){
+      t.remindAt = null;
+      rolloverIfRecurring(cat, t);
+    } else {
+      ensureAutoReminder(t);
+    }
+    saveAll();
+    render();
+  }
+  function removeTask(cat, idx){
+    state[cat].splice(idx,1);
+    saveAll();
+    render();
+  }
+  function move(cat, idx, dir){
+    const arr = state[cat];
+    const ni = idx + dir;
+    if (ni < 0 || ni >= arr.length) return;
+    [arr[idx], arr[ni]] = [arr[ni], arr[idx]];
+    saveAll();
+    render();
+  }
+  function snooze(cat, idx, days){
+    const t = state[cat][idx];
+    const base = t.due && parseYMD(t.due) ? t.due : todayYMD();
+    t.due = addDaysYMD(base, days);
+    t.remindAt = autoReminderForDue(t.due);
+    saveAll();
+    render();
+  }
 
-function prioClass(p){
-  if(!p) return "med";
-  const v = p.toLowerCase();
-  if(v.startsWith("h")) return "high";
-  if(v.startsWith("l")) return "low";
-  return "med";
-}
+  function openModal(cat, idx){
+    const t = state[cat][idx];
+    modalRef = {cat, idx};
 
-// Only show recurrence bubble for non-standard recurrences
-function showRecurBadge(cat, t){
-  const r = (t.recurrence||"None");
-  if(r==="None") return false;
-  if(r===cat) return false;
-  return true;
-}
+    modalTitle.textContent = `Task Details • ${cat}`;
 
-function taskRow(cat, t, i){
-  const row = document.createElement("div");
-  row.className = "task " + (t.done ? "done" : "");
+    mText.value   = t.text || "";
+    mDue.value    = t.due || "";
+    mPrio.value   = t.priority || "Medium";
+    mRecur.value  = t.recurrence || "None";
+    mRemind.value = t.remindAt || "";
+    mNote.value   = t.note || "";
+    mNotes.value  = t.notes || "";
 
-  const overdue = isOverdue(t);
-  const soon = isDueSoon(t);
-  const dueBadge = t.due ? `<span class="due ${overdue?"over":(soon?"soon":"")}">due ${t.due}</span>` : "";
-  const remindBadge = t.remindAt ? `<span class="pill" style="border-color:#9bbcff;color:#cfe0ff;">remind ${t.remindAt}</span>` : "";
-  const prioBadge = `<span class="prio ${prioClass(t.priority)}">${t.priority||"Medium"}</span>`;
-  const recurBadge = showRecurBadge(cat, t) ? `<span class="recur">${t.recurrence}</span>` : "";
-  const noteBadge = t.note ? `<span class="pill">${t.note}</span>` : "";
+    const history = (state[cat]||[])
+      .filter(x => x.text === t.text && x.done && x.completedAt)
+      .sort((a,b)=> new Date(b.completedAt) - new Date(a.completedAt));
 
-  const onTime = completedOnTime(t);
-  const onTimeBadge = (onTime===true) ? `<span class="pill">on-time</span>` :
-                      (onTime===false) ? `<span class="pill" style="border-color:#ff7b7b;color:#ffb0b0;">late</span>` : "";
+    if(history.length){
+      mHistory.style.display = "block";
+      mHistory.innerHTML = `<h4>Completion History (${history.length})</h4>` +
+        history.map(h=>{
+          const onTime = completedOnTime(h);
+          const badge = onTime===true ? `<span class="badge-on">on-time</span>` :
+                        onTime===false? `<span class="badge-late">late</span>` : "";
+          const when = new Date(h.completedAt).toLocaleString();
+          const due = h.due ? `due ${h.due}` : "no due";
+          return `<div class="history-item">
+                    <div>${when} <span class="muted">(${due})</span></div>
+                    <div>${badge}</div>
+                  </div>`;
+        }).join("");
+    } else {
+      mHistory.style.display = "none";
+      mHistory.innerHTML = "";
+    }
 
-  row.innerHTML = `
-    <input type="checkbox" ${t.done?"checked":""} />
-    <label class="task-label">
-      <div>${t.text}</div>
-      <div class="meta">
-        ${prioBadge}
-        ${recurBadge}
-        ${noteBadge}
-        ${dueBadge}
-        ${remindBadge}
-        ${onTimeBadge}
+    modalBackdrop.style.display = "flex";
+  }
+
+  function closeModal(){
+    modalBackdrop.style.display = "none";
+    modalRef = null;
+  }
+
+  mCancel.onclick = closeModal;
+  modalBackdrop.onclick = (e)=>{ if(e.target === modalBackdrop) closeModal(); };
+
+  mSave.onclick = ()=>{
+    if(!modalRef) return;
+    const {cat, idx} = modalRef;
+    const t = state[cat][idx];
+
+    t.text = mText.value.trim() || t.text;
+    t.due  = mDue.value || null;
+    t.priority = mPrio.value;
+    t.recurrence = mRecur.value;
+    t.remindAt = mRemind.value.trim() || null;
+    t.note = mNote.value.trim() || null;
+    t.notes = mNotes.value.trim();
+
+    ensureAutoReminder(t);
+    saveAll();
+    render();
+    closeModal();
+  };
+
+  function renderTabs(){
+    tabsEl.innerHTML = "";
+    VIEWS.forEach(v=>{
+      const b=document.createElement("div");
+      b.className="tab"+(v===activeView?" active":"");
+      b.textContent=v;
+      b.onclick=()=>setActiveView(v);
+      tabsEl.appendChild(b);
+    });
+  }
+
+  function statsForTasks(allTasks){
+    const total = allTasks.length;
+    const done = allTasks.filter(t=>t.done).length;
+    const open = total - done;
+    const overdue = allTasks.filter(t=>isOverdue(t)).length;
+    const completedWithDue = allTasks.filter(t=>t.done && t.due);
+    const onTimeCount = completedWithDue.filter(t=>completedOnTime(t)===true).length;
+    const lateCount = completedWithDue.filter(t=>completedOnTime(t)===false).length;
+    const onTimeRate = completedWithDue.length ? Math.round((onTimeCount/completedWithDue.length)*100) : null;
+    return {total, done, open, overdue, onTimeCount, lateCount, onTimeRate};
+  }
+
+  function renderStats(){
+    const allTasks = Object.values(state).flat();
+    const s = statsForTasks(allTasks);
+    statsEl.innerHTML = `
+      <div class="stat">Total: <b>${s.total}</b></div>
+      <div class="stat">Open: <b>${s.open}</b></div>
+      <div class="stat">Done: <b>${s.done}</b></div>
+      <div class="stat">Overdue: <b>${s.overdue}</b></div>
+      <div class="stat">On-time completions: <b>${s.onTimeCount}</b>${s.onTimeRate!==null?` <span class="muted">(${s.onTimeRate}%)</span>`:""}</div>
+      ${s.lateCount?`<div class="stat">Late completions: <b>${s.lateCount}</b></div>`:""}
+    `;
+  }
+
+  function prioClass(p){
+    if(!p) return "med";
+    const v = p.toLowerCase();
+    if(v.startsWith("h")) return "high";
+    if(v.startsWith("l")) return "low";
+    return "med";
+  }
+
+  function showRecurBadge(cat, t){
+    const r = (t.recurrence||"None");
+    if(r==="None") return false;
+    if(r===cat) return false;
+    return true;
+  }
+
+  function taskRow(cat, t, i){
+    const row = document.createElement("div");
+    row.className = "task " + (t.done ? "done" : "");
+
+    const overdue = isOverdue(t);
+    const soon = isDueSoon(t);
+    const dueBadge = t.due ? `<span class="due ${overdue?"over":(soon?"soon":"")}">due ${t.due}</span>` : "";
+    const remindBadge = t.remindAt ? `<span class="pill" style="border-color:#9bbcff;color:#cfe0ff;">remind ${t.remindAt}</span>` : "";
+    const prioBadge = `<span class="prio ${prioClass(t.priority)}">${t.priority||"Medium"}</span>`;
+    const recurBadge = showRecurBadge(cat, t) ? `<span class="recur">${t.recurrence}</span>` : "";
+    const noteBadge = t.note ? `<span class="pill">${t.note}</span>` : "";
+
+    const onTime = completedOnTime(t);
+    const onTimeBadge = (onTime===true) ? `<span class="pill">on-time</span>` :
+                        (onTime===false) ? `<span class="pill" style="border-color:#ff7b7b;color:#ffb0b0;">late</span>` : "";
+
+    row.innerHTML = `
+      <input type="checkbox" ${t.done?"checked":""} />
+      <label class="task-label">
+        <div>${t.text}</div>
+        <div class="meta">
+          ${prioBadge}
+          ${recurBadge}
+          ${noteBadge}
+          ${dueBadge}
+          ${remindBadge}
+          ${onTimeBadge}
+        </div>
+        ${t.completedAt?`<div class="muted">done ${new Date(t.completedAt).toLocaleString()}</div>`:""}
+        ${t.notes?`<div class="muted">${t.notes}</div>`:""}
+      </label>
+      <div class="right">
+        <button title="Move up">↑</button>
+        <button title="Move down">↓</button>
+        <button title="Snooze 1 day">+1d</button>
+        <button title="Snooze 1 week">+1w</button>
+        <button title="Delete">✕</button>
       </div>
-      ${t.completedAt?`<div class="muted">done ${new Date(t.completedAt).toLocaleString()}</div>`:""}
-      ${t.notes?`<div class="muted">${t.notes}</div>`:""}
-    </label>
-    <div class="right">
-      <button title="Move up">↑</button>
-      <button title="Move down">↓</button>
-      <button title="Snooze 1 day">+1d</button>
-      <button title="Snooze 1 week">+1w</button>
-      <button title="Delete">✕</button>
-    </div>
-  `;
+    `;
 
-  row.querySelector("input").onclick = (e)=> e.stopPropagation();
-  row.querySelector(".right").onclick = (e)=> e.stopPropagation();
+    row.querySelector("input").onclick = (e)=> e.stopPropagation();
+    row.querySelector(".right").onclick = (e)=> e.stopPropagation();
 
-  row.querySelector("input").onchange = () => toggle(cat, i);
+    row.querySelector("input").onchange = () => toggle(cat, i);
 
-  const btns = row.querySelectorAll("button");
-  const [up, down, s1d, s1w, del] = btns;
+    const btns = row.querySelectorAll("button");
+    const [up, down, s1d, s1w, del] = btns;
 
-  up.onclick = ()=>move(cat,i,-1);
-  down.onclick = ()=>move(cat,i,1);
-  s1d.onclick = ()=>snooze(cat,i,1);
-  s1w.onclick = ()=>snooze(cat,i,7);
-  del.onclick = ()=>removeTask(cat,i);
+    up.onclick = ()=>move(cat,i,-1);
+    down.onclick = ()=>move(cat,i,1);
+    s1d.onclick = ()=>snooze(cat,i,1);
+    s1w.onclick = ()=>snooze(cat,i,7);
+    del.onclick = ()=>removeTask(cat,i);
 
-  row.querySelector(".task-label").onclick = ()=> openModal(cat, i);
+    row.querySelector(".task-label").onclick = ()=> openModal(cat, i);
 
-  return row;
-}
+    return row;
+  }
 
-function section(title, tasks, cat=null){
-  const box=document.createElement("section");
-  box.className="cat";
-  box.innerHTML = `<h2>${title} <span class="muted">${tasks.length}</span></h2>`;
-  if(!tasks.length){
-    box.innerHTML += `<div class="empty">Nothing here.</div>`;
+  function section(title, tasks, cat=null){
+    const box=document.createElement("section");
+    box.className="cat";
+    box.innerHTML = `<h2>${title} <span class="muted">${tasks.length}</span></h2>`;
+    if(!tasks.length){
+      box.innerHTML += `<div class="empty">Nothing here.</div>`;
+      return box;
+    }
+    tasks.forEach(({t,i,catName})=>{
+      const c = catName || cat;
+      box.appendChild(taskRow(c, t, i));
+    });
     return box;
   }
-  tasks.forEach(({t,i,catName})=>{
-    const c = catName || cat;
-    box.appendChild(taskRow(c, t, i));
-  });
-  return box;
-}
 
-function render(){
-  renderTabs();
-  renderStats();
-  app.innerHTML="";
+  function render(){
+    renderTabs();
+    renderStats();
+    app.innerHTML="";
 
-  const allByCat = Object.entries(state).map(([catName, tasks]) =>
-    tasks.map((t,i)=>({catName,t,i}))
-  ).flat();
+    const allByCat = Object.entries(state).map(([catName, tasks]) =>
+      tasks.map((t,i)=>({catName,t,i}))
+    ).flat();
 
-  if(activeView==="Today"){
-    const today = todayYMD();
-    const items = allByCat.filter(x=>{
-      if(x.t.done) return false;
-      if(x.catName==="Daily") return true;
-      if(!x.t.due) return false;
-      return x.t.due <= today;
-    });
-    app.appendChild(section("Today", items));
-    return;
-  }
-
-  if(activeView==="All"){
-    for(const [catName,tasks] of Object.entries(state)){
-      const items = tasks.map((t,i)=>({t,i,catName}));
-      app.appendChild(section(catName, items, catName));
+    if(activeView==="Today"){
+      const today = todayYMD();
+      const items = allByCat.filter(x=>{
+        if(x.t.done) return false;
+        if(x.catName==="Daily") return true;
+        if(!x.t.due) return false;
+        return x.t.due <= today;
+      });
+      app.appendChild(section("Today", items));
+      return;
     }
-    return;
+
+    if(activeView==="All"){
+      for(const [catName,tasks] of Object.entries(state)){
+        const items = tasks.map((t,i)=>({t,i,catName}));
+        app.appendChild(section(catName, items, catName));
+      }
+      return;
+    }
+
+    if(activeView==="Overdue"){
+      const items = allByCat.filter(x=>isOverdue(x.t));
+      app.appendChild(section("Overdue", items));
+      return;
+    }
+
+    if(activeView==="Completed"){
+      const items = allByCat.filter(x=>x.t.done).sort((a,b)=>{
+        const da=a.t.completedAt?new Date(a.t.completedAt).getTime():0;
+        const db=b.t.completedAt?new Date(b.completedAt).getTime():0;
+        return db-da;
+      });
+      app.appendChild(section("Completed", items));
+      return;
+    }
+
+    if(state[activeView]){
+      const items = state[activeView].map((t,i)=>({t,i,catName:activeView}));
+      app.appendChild(section(activeView, items, activeView));
+    }
   }
 
-  if(activeView==="Overdue"){
-    const items = allByCat.filter(x=>isOverdue(x.t));
-    app.appendChild(section("Overdue", items));
-    return;
+  function saveAll(){
+    saveLocal(state);
+    if(supaUser){
+      saveRemote().catch(()=>{});
+    }
   }
 
-  if(activeView==="Completed"){
-    const items = allByCat.filter(x=>x.t.done).sort((a,b)=>{
-      const da=a.t.completedAt?new Date(a.t.completedAt).getTime():0;
-      const db=b.t.completedAt?new Date(b.t.completedAt).getTime():0;
-      return db-da;
-    });
-    app.appendChild(section("Completed", items));
-    return;
+  async function saveRemote(){
+    if(!supaUser) return;
+    const payload = {
+      user_id: supaUser.id,
+      tasks: state,
+      updated_at: nowISO()
+    };
+    const { error } = await supa
+      .from("tasks")
+      .upsert(payload, { onConflict: "user_id" });
+    if(error){
+      console.log("Remote save failed", error.message);
+    }
   }
 
-  if(state[activeView]){
-    const items = state[activeView].map((t,i)=>({t,i,catName:activeView}));
-    app.appendChild(section(activeView, items, activeView));
+  async function syncFromCloud(){
+    if(!supaUser) return;
+    const { data, error } = await supa
+      .from("tasks")
+      .select("*")
+      .eq("user_id", supaUser.id)
+      .maybeSingle();
+    if(error){
+      console.log("Remote load failed", error.message);
+      return;
+    }
+    if(data && data.tasks){
+      state = data.tasks;
+      saveLocal(state);
+      render();
+    } else {
+      await saveRemote();
+    }
   }
-}
 
-// Reminder checker
-setInterval(()=>{
-  const now = new Date();
-  let changed=false;
-  for(const tasks of Object.values(state)){
-    tasks.forEach(t=>{
-      if(t.done || !t.remindAt) return;
-      const d = new Date(t.remindAt.replace(" ","T"));
-      if(isNaN(d)) return;
-      if(d <= now){
-        notify("Greg Tasks", t.text);
-        t.remindAt = null;
-        changed=true;
+  function applyAuthbarHidden(){
+    const hidden = localStorage.getItem(AUTHBAR_KEY) === "1";
+    if(hidden){
+      authbarWrap.style.display = "none";
+    } else {
+      authbarWrap.style.display = "";
+    }
+  }
+  authHideBtn.onclick = ()=>{
+    const hidden = authbarWrap.style.display === "none";
+    authbarWrap.style.display = hidden ? "" : "none";
+    localStorage.setItem(AUTHBAR_KEY, hidden ? "0" : "1");
+  };
+
+  function applyAddbarCollapsed(){
+    const collapsed = localStorage.getItem(ADDBAR_KEY) === "1";
+    if(collapsed){
+      document.body.classList.add("addbar-collapsed");
+      addToggleBtn.textContent = "▾";
+    } else {
+      document.body.classList.remove("addbar-collapsed");
+      addToggleBtn.textContent = "▴";
+    }
+  }
+  addToggleBtn.onclick = ()=>{
+    const collapsed = !document.body.classList.contains("addbar-collapsed");
+    if(collapsed){
+      document.body.classList.add("addbar-collapsed");
+      localStorage.setItem(ADDBAR_KEY, "1");
+      addToggleBtn.textContent = "▾";
+    } else {
+      document.body.classList.remove("addbar-collapsed");
+      localStorage.setItem(ADDBAR_KEY, "0");
+      addToggleBtn.textContent = "▴";
+    }
+  };
+
+  function updateAuthUI(user){
+    supaUser = user;
+    if(user){
+      authStatus.textContent = `Logged in as ${user.email || user.id}`;
+      authInputs.classList.add("hidden-inner");
+      sendLinkBtn.style.display = "none";
+      emailInput.style.display = "none";
+      logoutBtn.style.display = "";
+    } else {
+      authStatus.textContent = "Not logged in (local only)";
+      authInputs.classList.remove("hidden-inner");
+      sendLinkBtn.style.display = "";
+      emailInput.style.display = "";
+      logoutBtn.style.display = "none";
+    }
+  }
+
+  sendLinkBtn.onclick = async ()=>{
+    const email = emailInput.value.trim();
+    if(!email) return alert("Enter your email first.");
+    const { error } = await supa.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.href
       }
     });
+    if(error) alert("Error sending magic link: " + error.message);
+    else alert("Magic link sent. Check your email.");
+  };
+
+  logoutBtn.onclick = async ()=>{
+    await supa.auth.signOut();
+    updateAuthUI(null);
+  };
+
+  supa.auth.getUser().then(async ({ data, error })=>{
+    if(!error && data?.user){
+      updateAuthUI(data.user);
+      await syncFromCloud();
+    } else {
+      updateAuthUI(null);
+      render();
+    }
+  });
+
+  supa.auth.onAuthStateChange(async (event, session)=>{
+    if(session?.user){
+      updateAuthUI(session.user);
+      await syncFromCloud();
+    } else {
+      updateAuthUI(null);
+      state = loadLocal();
+      render();
+    }
+  });
+
+  function reminderLoop(){
+    const now = new Date();
+    let changed=false;
+    for(const tasks of Object.values(state)){
+      tasks.forEach(t=>{
+        if(t.done || !t.remindAt) return;
+        const d = new Date(t.remindAt.replace(" ","T"));
+        if(isNaN(d)) return;
+        if(d <= now){
+          alert("Reminder: " + t.text);
+          t.remindAt = null;
+          changed=true;
+        }
+      });
+    }
+    if(changed){
+      saveAll();
+      render();
+    }
   }
-  if(changed){ save(state); if(supaUser) syncToCloud(); render(); }
-}, 30000);
+  setInterval(reminderLoop, 30000);
 
-/* ---------------- Cloud Sync (Supabase) ---------------- */
-async function syncToCloud(){
-  if(!supaUser || !supaReady) return;
-  const payload = { tasks: state, updated_at: nowISO(), user_id: supaUser.id };
-  await supa.from("tasks").upsert(payload, { onConflict: "user_id" });
-}
-async function syncFromCloud(){
-  if(!supaUser || !supaReady) return;
-  const { data, error } = await supa.from("tasks").select("*").eq("user_id", supaUser.id).maybeSingle();
-  if(error) return;
-  if(data?.tasks){
-    state = data.tasks;
-    save(state);
-  }
-}
-/* ------------------------------------------------------ */
-
-/* -------------------- Auth UI ------------------------- */
-const authEmail = document.getElementById("authEmail");
-const authSendBtn = document.getElementById("authSendBtn");
-const authLogoutBtn = document.getElementById("authLogoutBtn");
-const authStatus = document.getElementById("authStatus");
-
-async function sendMagicLink(){
-  const email = authEmail.value.trim();
-  if(!email) return alert("Enter your email.");
-  const redirectTo = window.location.href.split("#")[0];
-  const { error } = await supa.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo }});
-  if(error) return alert(error.message);
-  alert("Magic link sent. Check your email.");
-}
-async function logout(){
-  await supa.auth.signOut();
-  supaUser = null;
-  setAuthUI(false);
-}
-
-function setAuthUI(isLoggedIn){
-  if(isLoggedIn){
-    const email = supaUser?.email || "";
-    authLogoutBtn.style.display = "";
-    authEmail.style.display = "none";
-    authSendBtn.style.display = "none";
-    authStatus.textContent = `Synced as ${email}`;
-    setAuthbarCollapsed(true);
-  } else {
-    authLogoutBtn.style.display = "none";
-    authEmail.style.display = "";
-    authSendBtn.style.display = "";
-    authStatus.textContent = "Not logged in (local only)";
-    setAuthbarCollapsed(false);
-  }
-}
-
-authSendBtn.onclick = sendMagicLink;
-authLogoutBtn.onclick = logout;
-/* ------------------------------------------------------ */
-
-render();
-
-/* Load Supabase JS if needed */
-(function(){
-  const needSupa = SUPA_URL.includes("http") && !SUPA_ANON.startsWith("PASTE_");
-  if(!needSupa) return initSupabase();
-  const s = document.createElement("script");
-  s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-  s.onload = initSupabase;
-  document.head.appendChild(s);
-})();
+  applyAuthbarHidden();
+  applyAddbarCollapsed();
+  render();
 </script>
-
 </body>
 </html>
