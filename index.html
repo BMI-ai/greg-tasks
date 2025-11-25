@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Greg Tasks</title>
+<style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    body { margin: 0; background: #0b0c10; color: #e6e6e6; }
+    header { padding: 16px 20px; position: sticky; top: 0; background:#0b0c10; border-bottom:1px solid #1f2026; z-index:5;}
+    h1 { margin: 0; font-size: 20px; letter-spacing: .3px;}
+    main { padding: 12px 20px 40px; max-width: 980px; margin: 0 auto;}
+
+    .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:flex-end;}
+    .field{ display:flex; flex-direction:column; gap:6px; }
+    .field label{ font-size:11px; color:#aab0bb; padding-left:2px; }
+
+    input, select, button, textarea {
+      background:#14161c; color:#e6e6e6; border:1px solid #2a2d36; border-radius:10px;
+      padding:10px 12px; font-size:14px;
+    }
+    input[type="date"]{ padding:9px 10px; }
+    input[type="datetime-local"]{ padding:9px 10px; }
+
+    button { cursor:pointer; }
+    button:hover { border-color:#3b3f4b; transform: translateY(-0.5px); }
+
+    .tabs { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
+    .tab {
+      padding:7px 10px; border-radius:999px; border:1px solid #2a2d36; background:#12141a;
+      font-size:12px; cursor:pointer; user-select:none;
+    }
+    .tab.active { border-color:#9bbcff; color:#cfe0ff; background:#151a24; }
+
+    .stats {
+      margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;
+      background:#111319; border:1px solid #1f2026; border-radius:12px; padding:10px 12px;
+      font-size:13px; color:#cfd3da;
+    }
+    .stat { padding:6px 8px; background:#0e1016; border:1px solid #1f2026; border-radius:10px; }
+
+    .cat { margin-top:14px; background:#111319; border:1px solid #1f2026; border-radius:14px; padding:10px 12px; }
+    .cat h2 { margin: 0 0 6px; font-size:15px; color:#cfd3da; display:flex; gap:8px; align-items:center;}
+
+    .task {
+      display:flex; align-items:flex-start; gap:10px; padding:8px 6px; border-top:1px dashed #1f2026;
+    }
+    .task:first-of-type { border-top:0; }
+
+    .task label{
+      flex:1; cursor:pointer; line-height:1.25;
+      display:flex; flex-direction:column; gap:4px;
+    }
+    .task .meta{ display:flex; flex-wrap:wrap; gap:6px; }
+
+    .pill, .due, .prio, .recur {
+      font-size:11px; padding:2px 6px; border-radius:999px; border:1px solid #2a2d36;
+      color:#aab0bb;
+    }
+    .due.soon { border-color:#f2c94c; color:#f6d97a;}
+    .due.over { border-color:#ff7b7b; color:#ffb0b0;}
+    .prio.high { border-color:#ff7b7b; color:#ffb0b0;}
+    .prio.med { border-color:#f2c94c; color:#f6d97a;}
+    .prio.low { border-color:#7bd88a; color:#b7f1c2;}
+    .recur { color:#cfe0ff; border-color:#9bbcff; }
+
+    .done label { text-decoration: line-through; color:#7e8491;}
+
+    .right { margin-left:auto; display:flex; gap:6px; flex-wrap:wrap;}
+    .right button{ padding:6px 8px; font-size:12px; border-radius:8px; }
+
+    .muted { color:#8e94a3; font-size:12px; }
+    .empty { padding:8px; color:#8e94a3; font-size:13px; }
+
+    .filebtn { position: relative; overflow: hidden; }
+    .filebtn input[type=file]{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+
+    /* ---- Modal ---- */
+    .modal-backdrop{
+      position:fixed; inset:0; background:rgba(0,0,0,.6);
+      display:none; align-items:center; justify-content:center; z-index:999;
+    }
+    .modal{
+      width:min(760px, 94vw);
+      background:#0f1117; border:1px solid #242733; border-radius:16px;
+      box-shadow:0 10px 40px rgba(0,0,0,.6);
+      padding:16px;
+    }
+    .modal h3{ margin:0 0 10px; font-size:18px; }
+    .modal .grid{
+      display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    }
+    .modal label{
+      font-size:12px; color:#aab0bb; display:flex; flex-direction:column; gap:6px;
+    }
+    .modal textarea{ min-height:120px; resize:vertical; }
+    .modal .actions{
+      display:flex; justify-content:flex-end; gap:8px; margin-top:12px;
+    }
+    .modal .actions button{ padding:8px 12px; border-radius:10px; font-size:13px; }
+
+    .history{
+      margin-top:12px; padding:10px; background:#0c0e14; border:1px solid #1f2026; border-radius:12px;
+      font-size:13px;
+    }
+    .history h4{ margin:0 0 8px; font-size:13px; color:#cfd3da; }
+    .history-item{ display:flex; justify-content:space-between; padding:6px 0; border-top:1px dashed #1f2026; }
+    .history-item:first-of-type{ border-top:0; }
+    .badge-on{ color:#b7f1c2; border:1px solid #2f5; padding:1px 6px; border-radius:999px; font-size:11px;}
+    .badge-late{ color:#ffb0b0; border:1px solid #ff7b7b; padding:1px 6px; border-radius:999px; font-size:11px;}
+
+    /* --- Force white native date/time icons --- */
+    input[type="date"], input[type="datetime-local"]{
+      color-scheme: dark;
+    }
+    /* Chrome / Edge */
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator{
+      filter: invert(1) brightness(2) contrast(1.2);
+      opacity: 1;
+      cursor:pointer;
+    }
+    /* Firefox */
+    input[type="date"]::-moz-calendar-picker-indicator,
+    input[type="datetime-local"]::-moz-calendar-picker-indicator{
+      filter: invert(1) brightness(2) contrast(1.2);
+      opacity: 1;
+      cursor:pointer;
+    }
+
+    /* Toggle headers */
+    .mini-btn{
+      background:#12141a; border:1px solid #2a2d36; color:#e6e6e6;
+      border-radius:999px; padding:4px 8px; font-size:12px; cursor:pointer;
+    }
+    .mini-btn:hover{ border-color:#3b3f4b; }
+    .addbar-head{
+      display:flex; justify-content:space-between; align-items:center;
+      margin-top:10px;
+    }
+  </style>
+</head>
+<body>
+<header>
+<h1>Greg Tasks</h1><button class="mini-btn" id="authMiniBtn" title="Show account bar">Account</button>
+<!-- Auth Bar -->
+<div class="row" id="authbar" style="margin-top:8px;">
+<div class="field" style="flex:1; min-width:220px;">
+<label>Email for Magic Link</label>
+<input id="authEmail" placeholder="you@domain.com" type="email"/>
+</div>
+<button id="authSendBtn" title="Send magic link">Send Link</button>
+<button id="authLogoutBtn" style="display:none;">Logout</button>
+<div class="field" style="margin-left:auto;">
+<label>Status</label>
+<div class="muted" id="authStatus">Not logged in (local only)</div>
+</div>
+</div>
+<!-- Add Task Row with labels -->
+<div class="addbar-head"><span class="muted">New Task</span><button class="mini-btn" id="addToggleBtn" title="Hide/show new task bar">▴</button></div><div class="row" id="addbar">
+<div class="field" style="flex:1; min-width:240px;">
+<label>Task</label>
+<input id="taskText" placeholder="Add a task…"/>
+</div>
+<div class="field">
+<label>Category</label>
+<select id="taskCat">
+<option>Daily</option>
+<option>Weekly</option>
+<option>Monthly</option>
+<option>One-Off</option>
+</select>
+</div>
+<div class="field">
+<label>Priority</label>
+<select id="taskPrio">
+<option>High</option>
+<option selected="">Medium</option>
+<option>Low</option>
+</select>
+</div>
+<div class="field">
+<label>Recurrence</label>
+<select id="taskRecur">
+<option>None</option>
+<option>Daily</option>
+<option>Weekly</option>
+<option>Monthly</option>
+<option>Quarterly</option>
+<option>Annual</option>
+</select>
+</div>
+<div class="field">
+<label>Due Date</label>
+<input id="taskDue" type="date"/>
+</div>
+<button id="addBtn">Add</button>
+<button id="clearDoneBtn" title="Remove completed tasks">Clear Done</button>
+<button id="resetBtn" title="Reset to defaults">Reset Defaults</button>
+<button id="exportBtn" title="Download tasks JSON">Export</button>
+<button class="filebtn" title="Upload tasks JSON">
+      Import
+      <input accept="application/json" id="importFile" type="file"/>
+</button>
+</div>
+<div class="tabs" id="tabs"></div>
+<div class="stats" id="stats"></div>
+</header>
+<main id="app"></main>
+<!-- Modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+<div aria-modal="true" class="modal" role="dialog">
+<h3 id="modalTitle">Task Details</h3>
+<div class="grid">
+<label>
+        Task
+        <input id="mText"/>
+</label>
+<label>
+        Due date
+        <input id="mDue" type="date"/>
+</label>
+<label>
+        Priority
+        <select id="mPrio">
+<option>High</option>
+<option>Medium</option>
+<option>Low</option>
+</select>
+</label>
+<label>
+        Recurrence
+        <select id="mRecur">
+<option>None</option>
+<option>Daily</option>
+<option>Weekly</option>
+<option>Monthly</option>
+<option>Quarterly</option>
+<option>Annual</option>
+</select>
+</label>
+<label>
+        Reminder
+        <input id="mRemind" type="datetime-local"/>
+</label>
+<label>
+        Internal note (Thu / Tue–Fri)
+        <input id="mNote" placeholder="optional"/>
+</label>
+</div>
+<label style="margin-top:10px;">
+      Notes / details
+      <textarea id="mNotes" placeholder="Put any extra details here..."></textarea>
+</label>
+<div class="history" id="mHistory" style="display:none;"></div>
+<div class="actions">
+<button id="mCancel">Cancel</button>
+<button id="mSave">Save</button>
+</div>
+</div>
+</div>
+<script>
+const STORAGE_KEY = "greg_tasks_v7";
+
+/* -------------------- SUPABASE CONFIG -------------------- */
+/* Put YOUR project URL + anon key here */
+const SUPA_URL  = "https://qezihsskloosuxgkjdpg.supabase.co";
+const SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlemloc3NrbG9vc3V4Z2tqZHBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMTAwMDcsImV4cCI6MjA3OTU4NjAwN30.BYVSJEoctKV3xTx_nTU3Fl9JqeQ1GS4mhDkE8YJcUKU";
+/* --------------------------------------------------------- */
+
+/* If SUPA_URL/SUPA_ANON are left as placeholders, app runs local-only. */
+let supa = null;
+let supaUser = null;
+let supaReady = false;
+
+async function initSupabase(){
+  if(!SUPA_URL.includes("http") || SUPA_ANON.startsWith("PASTE_")) {
+    supaReady = false;
+    setAuthUI(false);
+    return;
+  }
+  const { createClient } = supabase;
+  supa = createClient(SUPA_URL, SUPA_ANON);
+  supaReady = true;
+
+  const { data } = await supa.auth.getSession();
+  supaUser = data.session?.user || null;
+  setAuthUI(!!supaUser);
+
+  supa.auth.onAuthStateChange((_evt, session)=>{
+    supaUser = session?.user || null;
+    setAuthUI(!!supaUser);
+    if(supaUser){
+      syncFromCloud().then(()=>render());
+    }
+  });
+}
+
+const DEFAULTS = {
+  Daily: [
+    { text: "Email DD’s Buyers", done:false, due:null, remindAt:null, priority:"High", recurrence:"Daily", notes:"", completedAt:null },
+    { text: "Send emails to various buyers from Salesforce", done:false, due:null, remindAt:null, priority:"High", recurrence:"Daily", notes:"", completedAt:null },
+    { text: "Container follow-ups (Option Care / shipments)", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"Daily", notes:"", completedAt:null },
+    { text: "General sales outreach", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"Daily", notes:"", completedAt:null }
+  ],
+  Weekly: [
+    { text: "Print invoices", done:false, note:"Thu", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
+    { text: "Print payroll checks", done:false, note:"Thu", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
+    { text: "Update inventory numbers", done:false, note:"Fri", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
+    { text: "Review financials", done:false, note:"Fri", due:null, remindAt:null, priority:"High", recurrence:"Weekly", notes:"", completedAt:null },
+    { text: "Email listed stores", done:false, note:"Tue–Fri", due:null, remindAt:null, priority:"Medium", recurrence:"Weekly", notes:"", completedAt:null }
+  ],
+  Monthly: [
+    { text: "Pay rent for 150 Randolph", done:false, due:null, remindAt:null, priority:"High", recurrence:"Monthly", notes:"", completedAt:null },
+    { text: "Pay trash people", done:false, due:null, remindAt:null, priority:"High", recurrence:"Monthly", notes:"", completedAt:null },
+    { text: "Pay Con Edison", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"Monthly", notes:"", completedAt:null },
+    { text: "Pay SBA loan", done:false, due:null, remindAt:null, priority:"High", recurrence:"Monthly", notes:"", completedAt:null }
+  ],
+  "One-Off": [
+    { text: "Look up insurance contacts for disability & workers comp", done:false, due:null, remindAt:null, priority:"Low", recurrence:"None", notes:"", completedAt:null },
+    { text: "Update the website (hire consultant)", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"None", notes:"", completedAt:null },
+    { text: "Optum payment", done:false, due:null, remindAt:null, priority:"High", recurrence:"None", notes:"", completedAt:null },
+    { text: "Send samples to AtHome", done:false, due:null, remindAt:null, priority:"Medium", recurrence:"None", notes:"", completedAt:null },
+    { text: "Follow up with Shannon at Boscov’s (clear protectors)", done:false, due:null, remindAt:null, priority:"High", recurrence:"None", notes:"", completedAt:null }
+  ]
+};
+
+const VIEWS = ["Today","All","Overdue","Daily","Weekly","Monthly","One-Off","Completed"];
+
+function nowISO(){ return new Date().toISOString(); }
+function todayYMD(){
+  const d = new Date(); d.setHours(0,0,0,0);
+  return d.toISOString().slice(0,10);
+}
+function parseYMD(s){ if(!s) return null; const d=new Date(s+"T00:00:00"); return isNaN(d)?null:d; }
+function addDaysYMD(ymd, days){
+  const d = parseYMD(ymd || todayYMD());
+  d.setDate(d.getDate()+days);
+  return d.toISOString().slice(0,10);
+}
+function addMonthsYMD(ymd, months){
+  const d = parseYMD(ymd || todayYMD());
+  const nm = new Date(d.getFullYear(), d.getMonth()+months, d.getDate());
+  return nm.toISOString().slice(0,10);
+}
+
+// Weekly helpers
+const WEEKDAYS = {Sun:0, Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6};
+function nextWeekdayDue(note, fromDateYMD){
+  const from = parseYMD(fromDateYMD || todayYMD());
+  const todayN = from.getDay();
+  if(!note){
+    const d = new Date(from); d.setDate(d.getDate()+7);
+    return d.toISOString().slice(0,10);
+  }
+  if(note.includes("–") || note.includes("-")){
+    const parts = note.replace("-", "–").split("–").map(s=>s.trim().slice(0,3));
+    const start = WEEKDAYS[parts[0]] ?? 1;
+    const end = WEEKDAYS[parts[1]] ?? 5;
+    for(let offset=0; offset<=7; offset++){
+      const d = new Date(from); d.setDate(d.getDate()+offset);
+      const wd = d.getDay();
+      if(wd>=start && wd<=end) return d.toISOString().slice(0,10);
+    }
+  }
+  const key = note.trim().slice(0,3);
+  const target = WEEKDAYS[key];
+  if(target===undefined){
+    const d = new Date(from); d.setDate(d.getDate()+7);
+    return d.toISOString().slice(0,10);
+  }
+  let diff = target - todayN;
+  if(diff<=0) diff += 7;
+  const d = new Date(from); d.setDate(d.getDate()+diff);
+  return d.toISOString().slice(0,10);
+}
+function nextFirstOfMonth(fromDateYMD){
+  const d = parseYMD(fromDateYMD || todayYMD());
+  const nm = new Date(d.getFullYear(), d.getMonth()+1, 1);
+  return nm.toISOString().slice(0,10);
+}
+
+// Status helpers
+function isOverdue(task){
+  if(task.done || !task.due) return false;
+  const due=parseYMD(task.due); if(!due) return false;
+  const t=parseYMD(todayYMD());
+  return due < t;
+}
+function isDueSoon(task){
+  if(task.done || !task.due) return false;
+  const due=parseYMD(task.due); if(!due) return false;
+  const t=parseYMD(todayYMD());
+  const in3=new Date(t); in3.setDate(in3.getDate()+3);
+  return due >= t && due <= in3;
+}
+function completedOnTime(task){
+  if(!task.done || !task.due || !task.completedAt) return null;
+  const due=parseYMD(task.due);
+  const comp=new Date(task.completedAt);
+  if(!due || isNaN(comp)) return null;
+  const dueEnd=new Date(due); dueEnd.setHours(23,59,59,999);
+  return comp <= dueEnd;
+}
+
+// Auto reminder if due exists
+function autoReminderForDue(dueYMD){
+  if(!dueYMD) return null;
+  return `${dueYMD} 09:00`;
+}
+function ensureAutoReminder(task){
+  if(task.due && !task.remindAt && !task.done){
+    task.remindAt = autoReminderForDue(task.due);
+  }
+}
+
+function toDTLocal(remindAt){
+  if(!remindAt) return "";
+  return remindAt.replace(" ", "T");
+}
+function fromDTLocal(val){
+  if(!val) return null;
+  return val.replace("T", " ");
+}
+
+// Notifications
+function canNotify(){ return "Notification" in window; }
+async function requestNotify(){
+  if(!canNotify()) return false;
+  if(Notification.permission==="granted") return true;
+  if(Notification.permission==="denied") return false;
+  const p = await Notification.requestPermission();
+  return p==="granted";
+}
+function notify(title, body){
+  if(canNotify() && Notification.permission==="granted"){
+    new Notification(title, { body });
+  } else {
+    alert(title + "\n" + body);
+  }
+}
+
+// Storage + migration
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return structuredClone(DEFAULTS);
+    const data = JSON.parse(raw);
+    for (const cat in data){
+      data[cat].forEach(t=>{
+        if(t.due===undefined) t.due=null;
+        if(t.completedAt===undefined) t.completedAt=null;
+        if(t.remindAt===undefined) t.remindAt=null;
+        if(t.note===undefined) t.note=null;
+        if(t.priority===undefined) t.priority="Medium";
+        if(t.recurrence===undefined) t.recurrence = (cat==="One-Off") ? "None" : cat;
+        if(t.notes===undefined) t.notes="";
+        ensureAutoReminder(t);
+      });
+    }
+    return data;
+  } catch {
+    return structuredClone(DEFAULTS);
+  }
+}
+function save(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+let state = load();
+
+// Elements
+const app = document.getElementById("app");
+const taskText = document.getElementById("taskText");
+const taskCat = document.getElementById("taskCat");
+const taskPrio = document.getElementById("taskPrio");
+const taskRecur = document.getElementById("taskRecur");
+const taskDue = document.getElementById("taskDue");
+const tabsEl = document.getElementById("tabs");
+const statsEl = document.getElementById("stats");
+
+const addbar = document.getElementById("addbar");
+const addToggleBtn = document.getElementById("addToggleBtn");
+const authbar = document.getElementById("authbar");
+const authMiniBtn = document.getElementById("authMiniBtn");
+
+const ADD_COLLAPSED_KEY = "greg_addbar_collapsed";
+const AUTH_COLLAPSED_KEY = "greg_authbar_collapsed";
+
+function setAddbarCollapsed(collapsed){
+  if(collapsed){
+    addbar.style.display = "none";
+    addToggleBtn.textContent = "▾";
+  } else {
+    addbar.style.display = "flex";
+    addToggleBtn.textContent = "▴";
+  }
+  localStorage.setItem(ADD_COLLAPSED_KEY, collapsed ? "1" : "0");
+}
+addToggleBtn.onclick = ()=> {
+  const collapsed = addbar.style.display !== "none";
+  setAddbarCollapsed(collapsed);
+};
+setAddbarCollapsed(localStorage.getItem(ADD_COLLAPSED_KEY)==="1");
+
+function setAuthbarCollapsed(collapsed){
+  if(collapsed){
+    authbar.style.display = "none";
+    authMiniBtn.style.display = "";
+  } else {
+    authbar.style.display = "flex";
+    authMiniBtn.style.display = "none";
+  }
+  localStorage.setItem(AUTH_COLLAPSED_KEY, collapsed ? "1" : "0");
+}
+authMiniBtn.onclick = ()=> setAuthbarCollapsed(false);
+
+let activeView = "Today";
+function setActiveView(v){ activeView=v; renderTabs(); render(); }
+
+// Add task
+document.getElementById("addBtn").onclick = () => {
+  const text = taskText.value.trim();
+  if (!text) return;
+  const cat = taskCat.value;
+  const prio = taskPrio.value;
+  const recurrence = taskRecur.value;
+  const due = taskDue.value ? taskDue.value : null;
+
+  const task = { text, done:false, due, remindAt:null, priority: prio, recurrence, notes:"", completedAt:null };
+  ensureAutoReminder(task);
+
+  state[cat] = state[cat] || [];
+  state[cat].push(task);
+
+  taskText.value = "";
+  taskDue.value = "";
+  save(state);
+  if(supaUser) syncToCloud();
+  render();
+};
+
+document.getElementById("clearDoneBtn").onclick = () => {
+  for (const cat in state) state[cat] = state[cat].filter(t => !t.done);
+  save(state);
+  if(supaUser) syncToCloud();
+  render();
+};
+
+document.getElementById("resetBtn").onclick = () => {
+  state = structuredClone(DEFAULTS);
+  save(state);
+  if(supaUser) syncToCloud();
+  setActiveView("Today");
+};
+
+document.getElementById("exportBtn").onclick = () => {
+  const payload = { exportedAt: nowISO(), version: "v7", tasks: state };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "greg_tasks_export.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+};
+
+document.getElementById("importFile").addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    const imported = parsed.tasks || parsed;
+    if(typeof imported !== "object" || Array.isArray(imported)) throw new Error("bad format");
+
+    const clean = {};
+    for(const [cat, arr] of Object.entries(imported)){
+      if(!Array.isArray(arr)) continue;
+      clean[cat] = arr.map(t=>{
+        const task = {
+          text: String(t.text||"").trim() || "(untitled task)",
+          done: !!t.done,
+          note: t.note ?? null,
+          due: t.due ?? null,
+          remindAt: t.remindAt ?? null,
+          priority: t.priority ?? "Medium",
+          recurrence: t.recurrence ?? ((cat==="One-Off")?"None":cat),
+          notes: String(t.notes||""),
+          completedAt: t.completedAt ?? (t.done ? nowISO() : null)
+        };
+        ensureAutoReminder(task);
+        return task;
+      });
+    }
+    for(const cat of Object.keys(DEFAULTS)){
+      if(!clean[cat]) clean[cat] = structuredClone(DEFAULTS[cat]);
+    }
+    state = clean;
+    save(state);
+    if(supaUser) syncToCloud();
+    setActiveView("Today");
+  } catch(err){
+    alert("Import failed. Make sure it's a valid greg_tasks_export.json file.");
+  } finally {
+    e.target.value = "";
+  }
+});
+
+// Recurrence rollover
+function computeNextDueFromRecurrence(task){
+  const base = task.due || todayYMD();
+  const r = (task.recurrence||"None").toLowerCase();
+  if(r==="none") return null;
+  if(r==="daily") return addDaysYMD(base, 1);
+  if(r==="weekly") return nextWeekdayDue(task.note, addDaysYMD(base,1));
+  if(r==="monthly") return nextFirstOfMonth(base);
+  if(r==="quarterly") return addMonthsYMD(base, 3);
+  if(r==="annual" || r==="yearly") return addMonthsYMD(base, 12);
+  return null;
+}
+function rolloverIfRecurring(cat, task){
+  const nextDue = computeNextDueFromRecurrence(task);
+  if(!nextDue) return;
+  const nextTask = {
+    text: task.text,
+    done:false,
+    note: task.note ?? null,
+    due: nextDue,
+    remindAt: null,
+    priority: task.priority ?? "Medium",
+    recurrence: task.recurrence ?? "None",
+    notes: task.notes ?? "",
+    completedAt: null
+  };
+  ensureAutoReminder(nextTask);
+  state[cat].push(nextTask);
+}
+
+// Task actions
+function toggle(cat, idx){
+  const t = state[cat][idx];
+  const newDone = !t.done;
+  t.done = newDone;
+  t.completedAt = newDone ? nowISO() : null;
+  if(newDone){
+    t.remindAt = null;
+    rolloverIfRecurring(cat, t);
+  } else {
+    ensureAutoReminder(t);
+  }
+  save(state);
+  if(supaUser) syncToCloud();
+  render();
+}
+function removeTask(cat, idx){
+  state[cat].splice(idx,1);
+  save(state);
+  if(supaUser) syncToCloud();
+  render();
+}
+function move(cat, idx, dir){
+  const arr = state[cat];
+  const ni = idx + dir;
+  if (ni < 0 || ni >= arr.length) return;
+  [arr[idx], arr[ni]] = [arr[ni], arr[idx]];
+  save(state);
+  if(supaUser) syncToCloud();
+  render();
+}
+function snooze(cat, idx, days){
+  const t = state[cat][idx];
+  const base = t.due && parseYMD(t.due) ? t.due : todayYMD();
+  t.due = addDaysYMD(base, days);
+  t.remindAt = autoReminderForDue(t.due);
+  save(state);
+  if(supaUser) syncToCloud();
+  render();
+}
+
+// ---- Modal logic ----
+const modalBackdrop = document.getElementById("modalBackdrop");
+const mText   = document.getElementById("mText");
+const mDue    = document.getElementById("mDue");
+const mPrio   = document.getElementById("mPrio");
+const mRecur  = document.getElementById("mRecur");
+const mRemind = document.getElementById("mRemind");
+const mNote   = document.getElementById("mNote");
+const mNotes  = document.getElementById("mNotes");
+const mCancel = document.getElementById("mCancel");
+const mSave   = document.getElementById("mSave");
+const mHistory= document.getElementById("mHistory");
+const modalTitle = document.getElementById("modalTitle");
+let modalRef = null;
+
+function openModal(cat, idx){
+  const t = state[cat][idx];
+  modalRef = {cat, idx};
+
+  modalTitle.textContent = `Task Details • ${cat}`;
+
+  mText.value   = t.text || "";
+  mDue.value    = t.due || "";
+  mPrio.value   = t.priority || "Medium";
+  mRecur.value  = t.recurrence || "None";
+  mRemind.value = toDTLocal(t.remindAt) || "";
+  mNote.value   = t.note || "";
+  mNotes.value  = t.notes || "";
+
+  const history = (state[cat]||[])
+    .filter(x => x.text === t.text && x.done && x.completedAt)
+    .sort((a,b)=> new Date(b.completedAt) - new Date(a.completedAt));
+
+  if(history.length){
+    mHistory.style.display = "block";
+    mHistory.innerHTML = `<h4>Completion History (${history.length})</h4>` +
+      history.map(h=>{
+        const onTime = completedOnTime(h);
+        const badge = onTime===true ? `<span class="badge-on">on-time</span>` :
+                      onTime===false? `<span class="badge-late">late</span>` : "";
+        const when = new Date(h.completedAt).toLocaleString();
+        const due = h.due ? `due ${h.due}` : "no due";
+        return `<div class="history-item">
+                  <div>${when} <span class="muted">(${due})</span></div>
+                  <div>${badge}</div>
+                </div>`;
+      }).join("");
+  } else {
+    mHistory.style.display = "none";
+    mHistory.innerHTML = "";
+  }
+
+  modalBackdrop.style.display = "flex";
+}
+
+function closeModal(){
+  modalBackdrop.style.display = "none";
+  modalRef = null;
+}
+
+mCancel.onclick = closeModal;
+modalBackdrop.onclick = (e)=>{ if(e.target === modalBackdrop) closeModal(); };
+
+mSave.onclick = ()=>{
+  if(!modalRef) return;
+  const {cat, idx} = modalRef;
+  const t = state[cat][idx];
+
+  t.text = mText.value.trim() || t.text;
+  t.due  = mDue.value || null;
+  t.priority = mPrio.value;
+  t.recurrence = mRecur.value;
+  t.remindAt = fromDTLocal(mRemind.value) || null;
+  t.note = mNote.value.trim() || null;
+  t.notes = mNotes.value.trim();
+
+  ensureAutoReminder(t);
+  save(state);
+  if(supaUser) syncToCloud();
+  render();
+  closeModal();
+};
+
+// UI helpers
+function renderTabs(){
+  tabsEl.innerHTML = "";
+  VIEWS.forEach(v=>{
+    const b=document.createElement("div");
+    b.className="tab"+(v===activeView?" active":"");
+    b.textContent=v;
+    b.onclick=()=>setActiveView(v);
+    tabsEl.appendChild(b);
+  });
+}
+
+function statsForTasks(allTasks){
+  const total = allTasks.length;
+  const done = allTasks.filter(t=>t.done).length;
+  const open = total - done;
+  const overdue = allTasks.filter(t=>isOverdue(t)).length;
+  const completedWithDue = allTasks.filter(t=>t.done && t.due);
+  const onTimeCount = completedWithDue.filter(t=>completedOnTime(t)===true).length;
+  const lateCount = completedWithDue.filter(t=>completedOnTime(t)===false).length;
+  const onTimeRate = completedWithDue.length ? Math.round((onTimeCount/completedWithDue.length)*100) : null;
+  return {total, done, open, overdue, onTimeCount, lateCount, onTimeRate};
+}
+
+function renderStats(){
+  const allTasks = Object.values(state).flat();
+  const s = statsForTasks(allTasks);
+  statsEl.innerHTML = `
+    <div class="stat">Total: <b>${s.total}</b></div>
+    <div class="stat">Open: <b>${s.open}</b></div>
+    <div class="stat">Done: <b>${s.done}</b></div>
+    <div class="stat">Overdue: <b>${s.overdue}</b></div>
+    <div class="stat">On-time completions: <b>${s.onTimeCount}</b>${s.onTimeRate!==null?` <span class="muted">(${s.onTimeRate}%)</span>`:""}</div>
+    ${s.lateCount?`<div class="stat">Late completions: <b>${s.lateCount}</b></div>`:""}
+  `;
+}
+
+function prioClass(p){
+  if(!p) return "med";
+  const v = p.toLowerCase();
+  if(v.startsWith("h")) return "high";
+  if(v.startsWith("l")) return "low";
+  return "med";
+}
+
+// Only show recurrence bubble for non-standard recurrences
+function showRecurBadge(cat, t){
+  const r = (t.recurrence||"None");
+  if(r==="None") return false;
+  if(r===cat) return false;         // hides Daily/Weekly/Monthly bubbles
+  return true;                      // shows Quarterly/Annual/etc.
+}
+
+function taskRow(cat, t, i){
+  const row = document.createElement("div");
+  row.className = "task " + (t.done ? "done" : "");
+
+  const overdue = isOverdue(t);
+  const soon = isDueSoon(t);
+  const dueBadge = t.due ? `<span class="due ${overdue?"over":(soon?"soon":"")}">due ${t.due}</span>` : "";
+  const remindBadge = t.remindAt ? `<span class="pill" style="border-color:#9bbcff;color:#cfe0ff;">remind ${t.remindAt}</span>` : "";
+  const prioBadge = `<span class="prio ${prioClass(t.priority)}">${t.priority||"Medium"}</span>`;
+  const recurBadge = showRecurBadge(cat, t) ? `<span class="recur">${t.recurrence}</span>` : "";
+  const noteBadge = t.note ? `<span class="pill">${t.note}</span>` : "";
+
+  const onTime = completedOnTime(t);
+  const onTimeBadge = (onTime===true) ? `<span class="pill">on-time</span>` :
+                      (onTime===false) ? `<span class="pill" style="border-color:#ff7b7b;color:#ffb0b0;">late</span>` : "";
+
+  row.innerHTML = `
+    <input type="checkbox" ${t.done?"checked":""} />
+    <label class="task-label">
+      <div>${t.text}</div>
+      <div class="meta">
+        ${prioBadge}
+        ${recurBadge}
+        ${noteBadge}
+        ${dueBadge}
+        ${remindBadge}
+        ${onTimeBadge}
+      </div>
+      ${t.completedAt?`<div class="muted">done ${new Date(t.completedAt).toLocaleString()}</div>`:""}
+      ${t.notes?`<div class="muted">${t.notes}</div>`:""}
+    </label>
+    <div class="right">
+      <button title="Move up">↑</button>
+      <button title="Move down">↓</button>
+      <button title="Snooze 1 day">+1d</button>
+      <button title="Snooze 1 week">+1w</button>
+      <button title="Delete">✕</button>
+    </div>
+  `;
+
+  row.querySelector("input").onclick = (e)=> e.stopPropagation();
+  row.querySelector(".right").onclick = (e)=> e.stopPropagation();
+
+  row.querySelector("input").onchange = () => toggle(cat, i);
+
+  const btns = row.querySelectorAll("button");
+  const [up, down, s1d, s1w, del] = btns;
+
+  up.onclick = ()=>move(cat,i,-1);
+  down.onclick = ()=>move(cat,i,1);
+  s1d.onclick = ()=>snooze(cat,i,1);
+  s1w.onclick = ()=>snooze(cat,i,7);
+  del.onclick = ()=>removeTask(cat,i);
+
+  row.querySelector(".task-label").onclick = ()=> openModal(cat, i);
+
+  return row;
+}
+
+function section(title, tasks, cat=null){
+  const box=document.createElement("section");
+  box.className="cat";
+  box.innerHTML = `<h2>${title} <span class="muted">${tasks.length}</span></h2>`;
+  if(!tasks.length){
+    box.innerHTML += `<div class="empty">Nothing here.</div>`;
+    return box;
+  }
+  tasks.forEach(({t,i,catName})=>{
+    const c = catName || cat;
+    box.appendChild(taskRow(c, t, i));
+  });
+  return box;
+}
+
+function render(){
+  renderTabs();
+  renderStats();
+  app.innerHTML="";
+
+  const allByCat = Object.entries(state).map(([catName, tasks]) =>
+    tasks.map((t,i)=>({catName,t,i}))
+  ).flat();
+
+  if(activeView==="Today"){
+    const today = todayYMD();
+    const items = allByCat.filter(x=>{
+      if(x.t.done) return false;
+      if(x.catName==="Daily") return true;
+      if(!x.t.due) return false;
+      return x.t.due <= today;
+    });
+    app.appendChild(section("Today", items));
+    return;
+  }
+
+  if(activeView==="All"){
+    for(const [catName,tasks] of Object.entries(state)){
+      const items = tasks.map((t,i)=>({t,i,catName}));
+      app.appendChild(section(catName, items, catName));
+    }
+    return;
+  }
+
+  if(activeView==="Overdue"){
+    const items = allByCat.filter(x=>isOverdue(x.t));
+    app.appendChild(section("Overdue", items));
+    return;
+  }
+
+  if(activeView==="Completed"){
+    const items = allByCat.filter(x=>x.t.done).sort((a,b)=>{
+      const da=a.t.completedAt?new Date(a.t.completedAt).getTime():0;
+      const db=b.t.completedAt?new Date(b.t.completedAt).getTime():0;
+      return db-da;
+    });
+    app.appendChild(section("Completed", items));
+    return;
+  }
+
+  if(state[activeView]){
+    const items = state[activeView].map((t,i)=>({t,i,catName:activeView}));
+    app.appendChild(section(activeView, items, activeView));
+  }
+}
+
+// Reminder checker
+setInterval(()=>{
+  const now = new Date();
+  let changed=false;
+  for(const tasks of Object.values(state)){
+    tasks.forEach(t=>{
+      if(t.done || !t.remindAt) return;
+      const d = new Date(t.remindAt.replace(" ","T"));
+      if(isNaN(d)) return;
+      if(d <= now){
+        notify("Greg Tasks", t.text);
+        t.remindAt = null;
+        changed=true;
+      }
+    });
+  }
+  if(changed){ save(state); if(supaUser) syncToCloud(); render(); }
+}, 30000);
+
+/* ---------------- Cloud Sync (Supabase) ---------------- */
+async function syncToCloud(){
+  if(!supaUser || !supaReady) return;
+  const payload = { tasks: state, updated_at: nowISO(), user_id: supaUser.id };
+  await supa.from("tasks").upsert(payload, { onConflict: "user_id" });
+}
+async function syncFromCloud(){
+  if(!supaUser || !supaReady) return;
+  const { data, error } = await supa.from("tasks").select("*").eq("user_id", supaUser.id).maybeSingle();
+  if(error) return;
+  if(data?.tasks){
+    state = data.tasks;
+    save(state);
+  }
+}
+/* ------------------------------------------------------ */
+
+/* -------------------- Auth UI ------------------------- */
+const authEmail = document.getElementById("authEmail");
+const authSendBtn = document.getElementById("authSendBtn");
+const authLogoutBtn = document.getElementById("authLogoutBtn");
+const authStatus = document.getElementById("authStatus");
+
+async function sendMagicLink(){
+  const email = authEmail.value.trim();
+  if(!email) return alert("Enter your email.");
+  const redirectTo = window.location.href.split("#")[0];
+  const { error } = await supa.auth.signInWithOtp({ email, options:{ emailRedirectTo: redirectTo }});
+  if(error) return alert(error.message);
+  alert("Magic link sent. Check your email.");
+}
+async function logout(){
+  await supa.auth.signOut();
+  supaUser = null;
+  setAuthUI(false);
+}
+
+function setAuthUI(isLoggedIn){
+  if(isLoggedIn){
+    const email = supaUser?.email || "";
+    authLogoutBtn.style.display = "";
+    authEmail.style.display = "none";
+    authSendBtn.style.display = "none";
+    authStatus.textContent = `Synced as ${email}`;
+    // auto-hide auth bar to save space
+    setAuthbarCollapsed(true);
+  } else {
+    authLogoutBtn.style.display = "none";
+    authEmail.style.display = "";
+    authSendBtn.style.display = "";
+    authStatus.textContent = "Not logged in (local only)";
+    setAuthbarCollapsed(false);
+  }
+}
+
+authSendBtn.onclick = sendMagicLink;
+authLogoutBtn.onclick = logout;
+/* ------------------------------------------------------ */
+
+render();
+
+/* Load Supabase JS if needed */
+(function(){
+  const needSupa = SUPA_URL.includes("http") && !SUPA_ANON.startsWith("PASTE_");
+  if(!needSupa) return initSupabase();
+  const s = document.createElement("script");
+  s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+  s.onload = initSupabase;
+  document.head.appendChild(s);
+})();
+</script>
+</body>
+</html>
