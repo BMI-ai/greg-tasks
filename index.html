@@ -33,7 +33,7 @@
 
     .app-shell {
       width: 100%;
-      max-width: 1040px;
+      max-width: 1180px;
       background: linear-gradient(145deg, rgba(15,23,42,0.96), rgba(15,23,42,0.98));
       border-radius: 24px;
       border: 1px solid rgba(148,163,184,0.25);
@@ -75,53 +75,12 @@
       font-size: 18px;
       font-weight: 600;
       letter-spacing: 0.03em;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .pill {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.4);
-      color: var(--text-muted);
     }
 
     .app-subtitle {
       font-size: 11px;
       color: var(--text-muted);
     }
-
-    .profile-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(15,23,42,0.9);
-      border-radius: 999px;
-      padding: 6px 10px;
-      border: 1px solid rgba(148,163,184,0.35);
-    }
-
-    .avatar {
-      width: 22px;
-      height: 22px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, #38bdf8, #1d4ed8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .avatar span { color: #e5e7eb; }
-
-    .profile-text { display: flex; flex-direction: column; gap: 1px; }
-    .profile-name { font-size: 11px; font-weight: 500; }
-    .profile-tag { font-size: 10px; color: var(--text-muted); }
 
     .tab-row { display: flex; gap: 6px; margin-top: 2px; }
     .tab {
@@ -243,38 +202,38 @@
     .main-title { font-size: 17px; font-weight: 600; }
     .main-subtitle { font-size: 12px; color: var(--text-muted); }
 
-    /* Hide Live JSON / Overdue badges visually but keep DOM so JS doesn't break */
     .header-badges {
-      display: none;
-    }
-
-    .badge {
-      font-size: 10px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      color: var(--text-muted);
-      display: inline-flex;
+      display: flex;
+      gap: 8px;
       align-items: center;
-      gap: 4px;
+      flex-wrap: wrap;
     }
 
-    .badge-dot {
-      width: 7px;
-      height: 7px;
+    .badge-button {
+      font-size: 11px;
+      padding: 5px 10px;
       border-radius: 999px;
-      background: var(--accent);
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.9);
+      color: var(--text-muted);
+      cursor: pointer;
     }
 
-    .badge-danger {
-      border-color: rgba(248,113,113,0.9);
-      color: #fecaca;
+    .badge-button:hover {
+      border-color: rgba(56,189,248,0.9);
+      color: #e0f2fe;
     }
-    .badge-danger .badge-dot { background: var(--danger); }
+
+    .badge-button input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
 
     .panel-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.9fr);
+      grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.9fr);
       gap: 12px;
       align-items: flex-start;
     }
@@ -292,6 +251,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 6px;
+      gap: 8px;
     }
 
     .card-title { font-size: 13px; font-weight: 600; }
@@ -306,9 +266,8 @@
       font-size: 11px;
     }
 
-    /* wider bubbles */
     .pill-tab {
-      padding: 4px 14px;   /* increased from 8px so text has room */
+      padding: 4px 14px;   /* wide enough for labels */
       cursor: pointer;
       color: var(--text-muted);
       user-select: none;
@@ -317,6 +276,37 @@
     .pill-tab.active {
       background: rgba(56,189,248,0.18);
       color: #e0f2fe;
+    }
+
+    .add-row {
+      display: flex;
+      gap: 8px;
+      margin: 6px 0 4px;
+      align-items: center;
+    }
+
+    #add-text {
+      flex: 1;
+      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: #020617;
+      color: var(--text-main);
+    }
+
+    #add-btn {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.9);
+      background: rgba(56,189,248,0.16);
+      color: #e0f2fe;
+      cursor: pointer;
+    }
+
+    #add-btn:hover {
+      background: rgba(56,189,248,0.25);
     }
 
     .task-table {
@@ -359,8 +349,6 @@
     .tag-medium { border-color: rgba(56,189,248,0.9); color: #e0f2fe; }
     .tag-monthly { border-color: rgba(94,234,212,0.8); color: #a5f3fc; }
 
-    .danger-text { color: #fecaca; }
-
     .badge-soft {
       font-size: 10px;
       padding: 3px 6px;
@@ -368,6 +356,93 @@
       background: rgba(15,23,42,0.9);
       border: 1px dashed rgba(148,163,184,0.6);
       color: var(--text-muted);
+    }
+
+    .row-done .task-name {
+      text-decoration: line-through;
+      color: rgba(148,163,184,0.7);
+    }
+
+    .row-done td {
+      background: rgba(15,23,42,0.7);
+    }
+
+    .detail-panel {
+      margin-top: 10px;
+      padding: 8px 9px;
+      border-radius: 12px;
+      background: rgba(15,23,42,0.92);
+      border: 1px solid rgba(55,65,81,0.9);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: none;
+    }
+
+    .detail-title {
+      font-weight: 600;
+      font-size: 11px;
+      margin-bottom: 6px;
+      color: #e5e7eb;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+      gap: 6px;
+    }
+
+    .detail-row label {
+      width: 70px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .detail-row input,
+    .detail-row select {
+      flex: 1;
+      font-size: 11px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: #020617;
+      color: var(--text-main);
+    }
+
+    .detail-text {
+      flex: 1;
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+
+    .detail-reminder {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .calendar-icon {
+      width: 14px;
+      height: 14px;
+      stroke: #e5e7eb;   /* white calendar */
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    #detail-save {
+      margin-top: 4px;
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.9);
+      background: rgba(56,189,248,0.16);
+      color: #e0f2fe;
+      cursor: pointer;
+    }
+
+    #detail-save:hover {
+      background: rgba(56,189,248,0.25);
     }
 
     .notif-list {
@@ -412,18 +487,8 @@
     <aside class="sidebar">
       <header class="app-header">
         <div class="app-title-block">
-          <div class="app-title">
-            Greg's To-Do
-            <span class="pill">assistant mode</span>
-          </div>
+          <div class="app-title">Greg's To-Do</div>
           <div class="app-subtitle">Single-screen control panel for your day.</div>
-        </div>
-        <div class="profile-chip">
-          <div class="avatar"><span>G</span></div>
-          <div class="profile-text">
-            <div class="profile-name">Greg Broder</div>
-            <div class="profile-tag">Ops · Broder Mfg.</div>
-          </div>
         </div>
       </header>
 
@@ -469,46 +534,50 @@
           </div>
         </div>
         <div class="header-badges">
-          <div class="badge">
-            <span class="badge-dot"></span>
-            Live JSON: <code id="json-version-label">v9</code>
-          </div>
-          <div class="badge badge-danger">
-            <span class="badge-dot"></span>
-            Overdue monitor on
-          </div>
+          <button id="exportBtn" class="badge-button">Export JSON</button>
+          <label class="badge-button" style="position:relative;">
+            Import JSON
+            <input id="importFile" type="file" accept="application/json" />
+          </label>
         </div>
       </div>
 
       <div class="panel-grid">
-        <!-- LEFT: TASK TABLE -->
+        <!-- LEFT: TASK AREA -->
         <section class="card">
           <div class="card-header">
             <div>
-              <div class="card-title" id="bucket-title">Task buckets preview</div>
+              <div class="card-title" id="bucket-title">Daily bucket</div>
               <div class="card-subtitle" id="bucket-subtitle">
-                Exactly how your Weekly, Monthly, and One-Off buckets look.
+                Exactly how your Daily, Weekly, Monthly, and One-Off buckets look.
               </div>
             </div>
             <div class="pill-tabs">
-              <div class="pill-tab active" id="bucket-weekly" data-bucket="Weekly">Weekly</div>
-              <div class="pill-tab" id="bucket-monthly" data-bucket="Monthly">Monthly</div>
-              <div class="pill-tab" id="bucket-oneoff" data-bucket="One-Off">One-Off</div>
+              <div class="pill-tab active" data-bucket="Daily" id="bucket-daily">Daily</div>
+              <div class="pill-tab" data-bucket="Weekly" id="bucket-weekly">Weekly</div>
+              <div class="pill-tab" data-bucket="Monthly" id="bucket-monthly">Monthly</div>
+              <div class="pill-tab" data-bucket="One-Off" id="bucket-oneoff">One-Off</div>
             </div>
           </div>
 
-          <table class="task-table" id="task-table">
+          <div class="add-row">
+            <input id="add-text" type="text" placeholder="Add new task to this bucket…" />
+            <button id="add-btn">Add</button>
+          </div>
+
+          <table class="task-table">
             <thead>
               <tr>
+                <th style="width: 7%;">Done</th>
                 <th style="width: 32%;">Task</th>
                 <th style="width: 14%;">When</th>
-                <th style="width: 16%;">Priority</th>
-                <th style="width: 24%;">Note</th>
-                <th>Reminder</th>
+                <th style="width: 14%;">Priority</th>
+                <th style="width: 18%;">Reminder</th>
+                <th>Note</th>
               </tr>
             </thead>
             <tbody id="task-table-body">
-              <!-- filled by JS -->
+              <!-- rows from JS -->
             </tbody>
           </table>
 
@@ -516,12 +585,49 @@
           <div class="summary-row">
             <span id="daily-anchor-label">Daily anchor: Review Amazon · Recurs every day.</span>
             <span class="task-meta" id="bucket-extra-label">
-              Monthly group uses <span class="tag tag-monthly">Monthly</span> tags.
+              Daily bucket runs every day with reminders.
             </span>
+          </div>
+
+          <div class="detail-panel" id="detail-panel">
+            <div class="detail-title">Task details & notes</div>
+            <div class="detail-row">
+              <label>Task</label>
+              <div class="detail-text" id="detail-text">Select a task row.</div>
+            </div>
+            <div class="detail-row">
+              <label>Note</label>
+              <input id="detail-note" type="text" placeholder="e.g. Thu 3PM, Due Tues, etc." />
+            </div>
+            <div class="detail-row">
+              <label>Due date</label>
+              <input id="detail-due" type="date" />
+            </div>
+            <div class="detail-row">
+              <label>Reminder</label>
+              <div class="detail-reminder">
+                <svg class="calendar-icon" viewBox="0 0 24 24">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                </svg>
+                <input id="detail-remind" type="datetime-local" />
+              </div>
+            </div>
+            <div class="detail-row">
+              <label>Priority</label>
+              <select id="detail-priority">
+                <option value="High">High</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+            <button id="detail-save">Save</button>
           </div>
         </section>
 
-        <!-- RIGHT: NOTIFICATIONS MOCK -->
+        <!-- RIGHT: NOTIFICATION PREVIEW -->
         <section class="card">
           <div class="card-header">
             <div>
@@ -534,7 +640,7 @@
           </div>
 
           <div class="notif-list" id="notif-list">
-            <!-- filled by JS (sample feed based on tasks) -->
+            <!-- filled by JS -->
           </div>
         </section>
       </div>
@@ -795,9 +901,7 @@
     function loadData() {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          return JSON.parse(stored);
-        }
+        if (stored) return JSON.parse(stored);
       } catch (e) {
         console.warn("Could not parse stored data, using embedded", e);
       }
@@ -812,12 +916,10 @@
       }
     }
 
-    const DATA = loadData();
-    document.getElementById("json-version-label").textContent = DATA.version || "v9";
+    let DATA = loadData();
 
     function parseDateTime(str) {
       if (!str) return null;
-      // Support "YYYY-MM-DD HH:mm"
       const normalized = str.replace(" ", "T");
       const d = new Date(normalized);
       return isNaN(d.getTime()) ? null : d;
@@ -828,6 +930,31 @@
       const d = new Date(str);
       return isNaN(d.getTime()) ? null : d;
     }
+
+    function todayISO() {
+      const d = new Date();
+      return d.toISOString().slice(0, 10);
+    }
+
+    function ensureRemindersForData(data) {
+      const tasksObj = data.tasks || {};
+      const buckets = Object.keys(tasksObj);
+      const today = todayISO();
+      buckets.forEach((bucket) => {
+        (tasksObj[bucket] || []).forEach((t) => {
+          if (t.remindAt) return;
+          const rec = (t.recurrence || "").toLowerCase();
+          if (t.due) {
+            t.remindAt = t.due + " 09:00";
+          } else if (rec === "daily") {
+            t.remindAt = today + " 09:00";
+          }
+        });
+      });
+    }
+
+    ensureRemindersForData(DATA);
+    saveData(DATA);
 
     function startOfToday() {
       const d = new Date();
@@ -847,10 +974,11 @@
       let idCounter = 1;
       buckets.forEach((bucket) => {
         const list = data.tasks[bucket] || [];
-        list.forEach((t) => {
+        list.forEach((t, idx) => {
           result.push({
             id: idCounter++,
             bucket,
+            bucketIndex: idx,
             text: t.text,
             done: !!t.done,
             note: t.note || "",
@@ -866,13 +994,11 @@
       return result;
     }
 
-    const ALL_TASKS = flattenTasks(DATA);
+    let ALL_TASKS = flattenTasks(DATA);
 
-    // -----------------------------
-    // 2. Rendering helpers
-    // -----------------------------
-    let currentView = "today";      // today | upcoming | overdue
-    let currentBucket = "Weekly";   // Weekly | Monthly | One-Off
+    let currentView = "today";
+    let currentBucket = "Daily";
+    let selectedTaskId = null;
 
     function priorityTagClass(priority) {
       if (priority === "High") return "tag tag-high";
@@ -898,7 +1024,6 @@
       const eot = endOfToday();
       return ALL_TASKS.filter((t) => {
         if (bucket && t.bucket !== bucket) return false;
-
         const hasDue = !!t.due;
         if (view === "today") {
           if (t.bucket === "Daily") return true;
@@ -930,24 +1055,39 @@
         return a.id - b.id;
       });
 
+      if (!tasks.length) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="6" class="task-name" style="color: var(--text-muted); padding-top:10px;">
+          No tasks in this view.
+        </td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
       for (const t of tasks) {
         const tr = document.createElement("tr");
+        tr.dataset.id = String(t.id);
+        if (t.done) tr.classList.add("row-done");
         tr.innerHTML = `
+          <td><input type="checkbox" class="task-done-toggle" data-id="${t.id}" ${t.done ? "checked" : ""} /></td>
           <td class="task-name">${t.text}</td>
           <td>${formatWhen(t)}</td>
           <td><span class="${priorityTagClass(t.priority)}">${t.priority}</span></td>
-          <td>${t.note || ""}</td>
           <td>${formatReminder(t)}</td>
+          <td>${t.note || ""}</td>
         `;
         tbody.appendChild(tr);
       }
 
-      if (!tasks.length) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="5" class="task-name" style="color: var(--text-muted); padding-top:10px;">
-          No tasks in this view.
-        </td>`;
-        tbody.appendChild(tr);
+      const extraLabel = document.getElementById("bucket-extra-label");
+      if (currentBucket === "Monthly") {
+        extraLabel.innerHTML = `Monthly group uses <span class="tag tag-monthly">Monthly</span> tags.`;
+      } else if (currentBucket === "Daily") {
+        extraLabel.textContent = "Daily bucket runs every day with reminders.";
+      } else if (currentBucket === "Weekly") {
+        extraLabel.textContent = "Weekly bucket is anchored to weekday notes (Thu, Fri, etc.).";
+      } else {
+        extraLabel.textContent = "One-off tasks fire once, then you can recycle them manually.";
       }
     }
 
@@ -1071,14 +1211,45 @@
       });
     }
 
+    function getTaskById(id) {
+      return ALL_TASKS.find((t) => t.id === id) || null;
+    }
+
+    function renderDetailPanel() {
+      const panel = document.getElementById("detail-panel");
+      const textEl = document.getElementById("detail-text");
+      const noteInput = document.getElementById("detail-note");
+      const dueInput = document.getElementById("detail-due");
+      const remindInput = document.getElementById("detail-remind");
+      const prioritySelect = document.getElementById("detail-priority");
+
+      const task = getTaskById(selectedTaskId);
+      if (!task) {
+        panel.style.display = "none";
+        textEl.textContent = "Select a task row.";
+        noteInput.value = "";
+        dueInput.value = "";
+        remindInput.value = "";
+        prioritySelect.value = "Medium";
+        return;
+      }
+      panel.style.display = "block";
+      textEl.textContent = task.text;
+      noteInput.value = task.note || "";
+      dueInput.value = task.dueRaw || "";
+      remindInput.value = task.remindRaw ? task.remindRaw.replace(" ", "T") : "";
+      prioritySelect.value = task.priority || "Medium";
+    }
+
     function refreshUI() {
       renderTaskTable();
       renderTodayPanel();
       renderNotifPanel();
+      renderDetailPanel();
     }
 
     // -----------------------------
-    // 3. Notifications engine
+    // Notifications (optional)
     // -----------------------------
     async function requestNotificationPermission() {
       if (!("Notification" in window)) return;
@@ -1100,10 +1271,8 @@
     function scheduleDailyCheckIn() {
       const now = new Date();
       const next = new Date();
-      next.setHours(8, 0, 0, 0); // 8:00 AM
-
+      next.setHours(8, 0, 0, 0);
       if (now > next) next.setDate(next.getDate() + 1);
-
       const ms = next - now;
       setTimeout(() => {
         notify("Daily Check-In", "Greg, here are your tasks for today.");
@@ -1121,7 +1290,7 @@
             `You have ${overdue.length} overdue task${overdue.length > 1 ? "s" : ""}.`
           );
         }
-      }, 60 * 60 * 1000); // hourly
+      }, 60 * 60 * 1000);
     }
 
     function scheduleTaskReminder(task) {
@@ -1139,55 +1308,195 @@
     }
 
     // -----------------------------
-    // 4. Tab handlers
+    // View / bucket interactions
     // -----------------------------
     function setView(view) {
       currentView = view;
-      document
-        .querySelectorAll(".tab")
-        .forEach((el) => el.classList.remove("active"));
-      document
-        .querySelector(`.tab[data-view='${view}']`)
-        ?.classList.add("active");
+      document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
+      document.querySelector(`.tab[data-view='${view}']`)?.classList.add("active");
       refreshUI();
     }
 
     function setBucket(bucket) {
       currentBucket = bucket;
-      document
-        .querySelectorAll(".pill-tab")
-        .forEach((el) => el.classList.remove("active"));
-      document
-        .querySelector(`.pill-tab[data-bucket='${bucket}']`)
-        ?.classList.add("active");
-      const bucketTitle = document.getElementById("bucket-title");
-      bucketTitle.textContent = bucket + " bucket";
+      document.querySelectorAll(".pill-tab").forEach(el => el.classList.remove("active"));
+      document.querySelector(`.pill-tab[data-bucket='${bucket}']`)?.classList.add("active");
+      document.getElementById("bucket-title").textContent = bucket + " bucket";
       refreshUI();
     }
 
     document.getElementById("tab-today").addEventListener("click", () => setView("today"));
-    document.getElementById("tab-upcoming").addEventListener("click", () =>
-      setView("upcoming")
-    );
-    document.getElementById("tab-overdue").addEventListener("click", () =>
-      setView("overdue")
-    );
+    document.getElementById("tab-upcoming").addEventListener("click", () => setView("upcoming"));
+    document.getElementById("tab-overdue").addEventListener("click", () => setView("overdue"));
 
-    document
-      .getElementById("bucket-weekly")
-      .addEventListener("click", () => setBucket("Weekly"));
-    document
-      .getElementById("bucket-monthly")
-      .addEventListener("click", () => setBucket("Monthly"));
-    document
-      .getElementById("bucket-oneoff")
-      .addEventListener("click", () => setBucket("One-Off"));
+    document.getElementById("bucket-daily").addEventListener("click", () => setBucket("Daily"));
+    document.getElementById("bucket-weekly").addEventListener("click", () => setBucket("Weekly"));
+    document.getElementById("bucket-monthly").addEventListener("click", () => setBucket("Monthly"));
+    document.getElementById("bucket-oneoff").addEventListener("click", () => setBucket("One-Off"));
 
     // -----------------------------
-    // 5. Init
+    // Table interactions
+    // -----------------------------
+    function rebuildTasks() {
+      ALL_TASKS = flattenTasks(DATA);
+    }
+
+    document.getElementById("task-table-body").addEventListener("click", (e) => {
+      const checkbox = e.target.closest(".task-done-toggle");
+      const row = e.target.closest("tr[data-id]");
+
+      if (checkbox) {
+        const id = Number(checkbox.dataset.id);
+        const task = getTaskById(id);
+        if (task) {
+          const list = DATA.tasks[task.bucket] || [];
+          const base = list[task.bucketIndex];
+          if (base) {
+            base.done = checkbox.checked;
+            base.completedAt = checkbox.checked ? new Date().toISOString() : null;
+            saveData(DATA);
+            rebuildTasks();
+            refreshUI();
+          }
+        }
+        return;
+      }
+
+      if (row) {
+        const id = Number(row.dataset.id);
+        selectedTaskId = id;
+        renderDetailPanel();
+      }
+    });
+
+    // -----------------------------
+    // Add task bar
+    // -----------------------------
+    function addTaskFromInput() {
+      const input = document.getElementById("add-text");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const bucketName = currentBucket;
+      const newTask = {
+        text,
+        done: false,
+        note: null,
+        due: null,
+        remindAt: null,
+        priority: "Medium",
+        recurrence:
+          bucketName === "Daily"
+            ? "Daily"
+            : bucketName === "Weekly"
+            ? "Weekly"
+            : bucketName === "Monthly"
+            ? "Monthly"
+            : "None",
+        notes: "",
+        completedAt: null
+      };
+
+      if (!DATA.tasks[bucketName]) DATA.tasks[bucketName] = [];
+      DATA.tasks[bucketName].push(newTask);
+
+      ensureRemindersForData(DATA);
+      saveData(DATA);
+      rebuildTasks();
+      refreshUI();
+      scheduleAllReminders();
+
+      input.value = "";
+    }
+
+    document.getElementById("add-btn").addEventListener("click", addTaskFromInput);
+    document.getElementById("add-text").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") addTaskFromInput();
+    });
+
+    // -----------------------------
+    // Detail panel save
+    // -----------------------------
+    document.getElementById("detail-save").addEventListener("click", () => {
+      const task = getTaskById(selectedTaskId);
+      if (!task) return;
+
+      const noteInput = document.getElementById("detail-note");
+      const dueInput = document.getElementById("detail-due");
+      const remindInput = document.getElementById("detail-remind");
+      const prioritySelect = document.getElementById("detail-priority");
+
+      const list = DATA.tasks[task.bucket] || [];
+      const base = list[task.bucketIndex];
+      if (!base) return;
+
+      base.note = noteInput.value || null;
+      base.due = dueInput.value || null;
+      base.remindAt = remindInput.value ? remindInput.value.replace("T", " ") : null;
+      base.priority = prioritySelect.value || "Medium";
+
+      ensureRemindersForData(DATA);
+      saveData(DATA);
+      rebuildTasks();
+      refreshUI();
+      scheduleAllReminders();
+    });
+
+    // -----------------------------
+    // Export / Import
+    // -----------------------------
+    function exportTasks() {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        version: DATA.version || "v9",
+        tasks: DATA.tasks
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+        type: "application/json"
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "greg_tasks_export.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("exportBtn").addEventListener("click", exportTasks);
+
+    document.getElementById("importFile").addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const imported = parsed.tasks || parsed;
+        if (!imported || typeof imported !== "object" || Array.isArray(imported)) {
+          throw new Error("bad format");
+        }
+        DATA.tasks = imported;
+        ensureRemindersForData(DATA);
+        saveData(DATA);
+        rebuildTasks();
+        currentView = "today";
+        currentBucket = "Daily";
+        selectedTaskId = null;
+        refreshUI();
+        scheduleAllReminders();
+      } catch (err) {
+        alert("Import failed. Make sure it's a valid greg_tasks_export.json file.");
+      } finally {
+        e.target.value = "";
+      }
+    });
+
+    // -----------------------------
+    // Init
     // -----------------------------
     (function init() {
-      saveData(DATA); // ensure localStorage copy exists
+      saveData(DATA);
       requestNotificationPermission();
       refreshUI();
       scheduleDailyCheckIn();
