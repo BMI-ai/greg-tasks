@@ -603,39 +603,41 @@
     // ---------- FILTERING ----------
 
     function filterFlat() {
-      const todayStart = startOfToday();
-      const todayEnd = endOfToday();
+  const todayStart = startOfToday();
+  const todayEnd = endOfToday();
 
-      return FLAT.filter(t => {
-        // bucket filter
-        if (currentView !== "completed" && currentBucket !== "All") {
-          if (t.bucket !== currentBucket) return false;
-        }
-
-        if (currentView === "completed") {
-          return t.done;
-        }
-
-        if (currentView === "today") {
-          // daily bucket always counts as today
-          if (t.bucket === "Daily") return true;
-          if (t.due && t.due >= todayStart && t.due <= todayEnd) return true;
-          return false;
-        }
-
-        if (currentView === "upcoming") {
-          if (t.due && t.due > todayEnd) return true;
-          return false;
-        }
-
-        if (currentView === "overdue") {
-          if (!t.done && t.due && t.due < todayStart) return true;
-          return false;
-        }
-
-        return true;
-      });
+  return FLAT.filter(t => {
+    // Bucket filter (except in completed view)
+    if (currentView !== "completed" && currentBucket !== "All") {
+      if (t.bucket !== currentBucket) return false;
     }
+
+    // COMPLETED: show all done tasks across all buckets
+    if (currentView === "completed") {
+      return t.done;
+    }
+
+    // TODAY: show everything in the selected bucket (or all buckets if "All")
+    // regardless of whether 'due' is a real date or a label like "Tuesday" or "Monthly-11"
+    if (currentView === "today") {
+      return true; // bucket filter above already applied
+    }
+
+    // UPCOMING: only tasks with a real future date
+    if (currentView === "upcoming") {
+      return t.due && t.due > todayEnd;
+    }
+
+    // OVERDUE: only tasks with a real past date and not done
+    if (currentView === "overdue") {
+      return !t.done && t.due && t.due < todayStart;
+    }
+
+    // fallback (shouldn't be hit)
+    return true;
+  });
+}
+
 
     // ---------- LEFT SUMMARY ----------
 
@@ -1018,4 +1020,5 @@
   </script>
 </body>
 </html>
+
 
