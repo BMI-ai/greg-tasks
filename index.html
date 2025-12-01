@@ -602,25 +602,31 @@
 
     // ---------- FILTERING ----------
 
-    function filterFlat() {
+   function filterFlat() {
   const todayStart = startOfToday();
   const todayEnd = endOfToday();
 
   return FLAT.filter(t => {
-    // Bucket filter (except in completed view)
-    if (currentView !== "completed" && currentBucket !== "All") {
-      if (t.bucket !== currentBucket) return false;
-    }
-
-    // COMPLETED: show all done tasks across all buckets
+    // 1) COMPLETED: always only done tasks, across all buckets
     if (currentView === "completed") {
       return t.done;
     }
 
-    // TODAY: show everything in the selected bucket (or all buckets if "All")
-    // regardless of whether 'due' is a real date or a label like "Tuesday" or "Monthly-11"
+    // 2) BUCKET FILTER (for everything except "All")
+    if (currentBucket !== "All") {
+      if (t.bucket !== currentBucket) return false;
+    }
+
+    // 3) WHEN "All" IS SELECTED, JUST SHOW EVERYTHING (except completed, which is handled above)
+    if (currentBucket === "All") {
+      return true;
+    }
+
+    // 4) For specific buckets, simple view rules
+
+    // TODAY: show everything in that bucket, regardless of due format
     if (currentView === "today") {
-      return true; // bucket filter above already applied
+      return true;
     }
 
     // UPCOMING: only tasks with a real future date
@@ -633,7 +639,7 @@
       return !t.done && t.due && t.due < todayStart;
     }
 
-    // fallback (shouldn't be hit)
+    // fallback
     return true;
   });
 }
