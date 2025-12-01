@@ -325,6 +325,7 @@
       background: var(--bg-alt);
       color: var(--text-main);
       font-size: 12px;
+      resize: vertical; /* optional: lets you drag it taller */
     }
 
     .details-save {
@@ -452,7 +453,7 @@
                   <th style="width:110px;">When</th>
                   <th style="width:90px;">Priority</th>
                   <th style="width:130px;">Reminder</th>
-                  <th style="width:160px;">Note</th>
+                  <th style="width:220px;">Note</th>
                 </tr>
               </thead>
               <tbody id="task-body"></tbody>
@@ -466,7 +467,7 @@
             </div>
             <div>
               <label for="d-note">Note</label>
-              <input id="d-note" type="text" />
+              <textarea id="d-note" rows="3"></textarea>
             </div>
             <div>
               <label for="d-priority">Priority</label>
@@ -1017,3 +1018,4 @@
   </script>
 </body>
 </html>
+
