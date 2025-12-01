@@ -1,408 +1,1019 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Greg's To-Do Assistant</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<style>
-/* FULL-WIDTH APP + ALL FEATURES IMPLEMENTED */
-html, body { margin:0; padding:0; width:100%; height:100%; background:#0f172a; color:#e5e7eb; font-family:system-ui; overflow:hidden; }
-.app-shell { width:100%; height:100vh; display:grid; grid-template-columns:300px auto; }
-/* LEFT PANE */
-.sidebar { background:#020617; border-right:1px solid #1e293b; padding:18px; overflow-y:auto; }
-.app-title{font-size:20px;font-weight:600;} .tabs{display:flex;gap:6px;margin-top:10px;} .tab{flex:1;padding:8px 4px;border-radius:999px;background:#1e293b;color:#9ca3af;text-align:center;cursor:pointer;} .tab.active{background:#38bdf833;color:#e0f2fe;border:1px solid #38bdf8;} 
-/* RIGHT SIDE */
-.main { background:#0f172a; padding:20px; display:flex; flex-direction:column; gap:14px; height:100%; overflow:hidden; }
-.header{display:flex;justify-content:space-between;align-items:center;} .title{font-size:18px;font-weight:600;} .subtitle{color:#9ca3af;font-size:12px;} .btn{padding:6px 10px;border-radius:999px;border:1px solid #94a3b8;background:#1e293b;color:#cbd5e1;cursor:pointer;} .btn:hover{border-color:#38bdf8;color:#e0f2fe;}
-/* GRID: TABLE + NOTIFS */
-.content-grid{flex:1;display:grid;grid-template-columns:2.2fr 1fr;gap:16px;min-height:0;}
-/* MAIN CARD (BUCKETS) */
-.card{background:#020617;border:1px solid #1e293b;border-radius:14px;padding:14px;display:flex;flex-direction:column;min-height:0;}
-.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-/* PILLS */
-.pills{display:flex;gap:6px;} .pill{padding:6px 14px;background:#1e293b;border-radius:999px;color:#9ca3af;cursor:pointer;white-space:nowrap;} .pill.active{background:#38bdf833;color:#e0f2fe;border:1px solid #38bdf8;}
-/* ADD BAR */
-.add-row{display:flex;gap:8px;margin-bottom:8px;} #add-text{flex:1;padding:6px;border-radius:8px;background:#0f172a;border:1px solid #334155;color:#e5e7eb;} #add-btn{padding:6px 12px;border-radius:8px;background:#38bdf833;border:1px solid #38bdf8;color:#e0f2fe;cursor:pointer;}
-/* TABLE */
-.table-container{flex:1;overflow:auto;border-radius:8px;border:1px solid #1e293b;} table{width:100%;border-collapse:collapse;font-size:12px;} th,td{padding:6px;border-bottom:1px solid #1e293b;} th{text-align:left;color:#9ca3af;font-size:11px;} tr:hover{background:#1e293b;} .done td{text-decoration:line-through;color:#64748b;}
-/* DETAILS */
-.details{margin-top:10px;padding:10px;border:1px solid #334155;border-radius:8px;background:#0f172a;display:none;flex-direction:column;gap:6px;} .details input, .details select{padding:6px;border-radius:6px;background:#020617;border:1px solid #334155;color:#e5e7eb;}
-/* NOTIFICATIONS */
-.notifs{background:#020617;border:1px solid #1e293b;border-radius:14px;padding:14px;overflow:auto;} .notif{padding:10px;border-radius:10px;border:1px solid #334155;margin-bottom:8px;cursor:pointer;} .notif:hover{border-color:#38bdf8;background:#1e293b;}
-</style>
+  <meta charset="UTF-8" />
+  <title>Greg's To-Do Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-alt: #0f172a;
+      --card: #020617;
+      --border: #1e293b;
+      --border-soft: #334155;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --accent: #38bdf8;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-alt);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 280px auto;
+      width: 100%;
+      height: 100vh;
+    }
+
+    /* Left pane */
+
+    .sidebar {
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .app-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .app-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tab {
+      flex: 1;
+      font-size: 11px;
+      padding: 6px 4px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: #020617;
+      color: var(--text-muted);
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tab.active {
+      background: rgba(56,189,248,0.18);
+      border-color: var(--accent);
+      color: #e0f2fe;
+    }
+
+    .left-card {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #020617;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .left-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .left-card-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .left-list {
+      font-size: 12px;
+      color: var(--text-main);
+    }
+
+    .left-list-item {
+      margin-bottom: 4px;
+    }
+
+    /* Right pane */
+
+    .main {
+      background: var(--bg-alt);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .main-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .main-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .main-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .main-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #94a3b8;
+      background: #020617;
+      color: #cbd5e1;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+      color: #e0f2fe;
+    }
+
+    .content-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(260px, 1fr);
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .card {
+      background: #020617;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid #1e293b;
+      background: #020617;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .pill.active {
+      background: rgba(56,189,248,0.18);
+      border-color: var(--accent);
+      color: #e0f2fe;
+    }
+
+    .add-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    #add-text {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
+      background: var(--bg);
+      color: var(--text-main);
+      font-size: 12px;
+    }
+
+    #add-btn {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--accent);
+      background: rgba(56,189,248,0.16);
+      color: #e0f2fe;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    #add-btn:hover {
+      background: rgba(56,189,248,0.25);
+    }
+
+    .table-container {
+      flex: 1;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      overflow: auto;
+      background: #020617;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 6px 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      text-align: left;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    tr:hover {
+      background: #0b1220;
+    }
+
+    tr.done td {
+      text-decoration: line-through;
+      color: #64748b;
+    }
+
+    .details {
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: #020617;
+      font-size: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .details label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .details input,
+    .details select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-soft);
+      background: var(--bg-alt);
+      color: var(--text-main);
+      font-size: 12px;
+    }
+
+    .details-save {
+      margin-top: 4px;
+      align-self: flex-start;
+    }
+
+    .notif-list {
+      font-size: 12px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .notif-item {
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+
+    .notif-item:hover {
+      border-color: var(--accent);
+      background: #0b1220;
+    }
+
+    .notif-title {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .notif-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .notif-body {
+      font-size: 12px;
+      color: var(--text-main);
+    }
+
+    @media (max-width: 900px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        height: auto;
+      }
+
+      .main {
+        height: calc(100vh - 200px);
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="app-shell">
-<!-- LEFT PANE -->
-<div class="sidebar">
-<div class="app-title">Greg's To-Do</div>
-<div class="tabs">
-<div class="tab active" data-view="today">Today</div>
-<div class="tab" data-view="upcoming">Upcoming</div>
-<div class="tab" data-view="overdue">Overdue</div>
-<div class="tab" data-view="completed">Completed</div>
-</div>
-<!-- TODAY PREVIEW (auto filled by JS) -->
-<div id="left-summary" style="margin-top:20px;font-size:14px;color:#cbd5e1;line-height:1.4;"></div>
-</div>
-<!-- RIGHT PANE -->
-<div class="main">
-<div class="header">
-<div>
-<div class="title">Task buckets & schedule</div>
-<div class="subtitle">Full-width interactive to-do manager</div>
-</div>
-<div>
-<button class="btn" id="exportBtn">Export JSON</button>
-<label class="btn" style="cursor:pointer;">Import JSON<input type="file" id="importFile" style="display:none;"></label>
-</div>
-</div>
-<div class="content-grid">
-<!-- MAIN BUCKET TABLE -->
-<div class="card">
-<div class="card-header">
-<div class="title" id="bucket-title">Daily</div>
-<div class="pills">
-<div class="pill active" data-bucket="Daily">Daily</div>
-<div class="pill" data-bucket="Weekly">Weekly</div>
-<div class="pill" data-bucket="Monthly">Monthly</div>
-<div class="pill" data-bucket="One-Off">One-Off</div>
-<div class="pill" data-bucket="All">All</div>
-</div>
-</div>
-<div class="add-row">
-<input id="add-text" placeholder="Add new task..." />
-<button id="add-btn">Add</button>
-</div>
-<div class="table-container">
-<table>
-<thead><tr>
-<th>Done</th>
-<th id="col-bucket" style="display:none;">Bucket</th>
-<th>Task</th>
-<th>When</th>
-<th>Priority</th>
-<th>Reminder</th>
-<th>Note</th>
-</tr></thead>
-<tbody id="task-body"></tbody>
-</table>
-</div>
-<div class="details" id="details-panel">
-<div>Task name:<br><input id="d-name" /></div>
-<div>Note:<br><input id="d-note" /></div>
-<div>Priority:<br><select id="d-priority"><option>High</option><option>Medium</option><option>Low</option></select></div>
-<div>Due date:<br><input id="d-due" placeholder="YYYY-MM-DD" /></div>
-<div>Reminder:<br><input id="d-remind" placeholder="YYYY-MM-DD HH:MM" /></div>
-<button class="btn" id="d-save">Save changes</button>
-</div>
-</div>
-<!-- NOTIFICATION CENTER -->
-<div class="notifs" id="notif-list"></div>
-</div>
-</div>
-</div>
-<script>
-// === FULL JAVASCRIPT ENGINE ===
-// NOTE: This JS is complete, optimized, and contains NO animations.
-// ---------------------------------------------------------------
-// GLOBAL STATE
-let DATA = null;
-const STORAGE_KEY = "greg_todo_data_v1";
+  <div class="app-shell">
+    <!-- LEFT PANE -->
+    <aside class="sidebar">
+      <div>
+        <div class="app-title">Greg's To-Do</div>
+        <div class="app-subtitle">Full-screen control for your buckets.</div>
+      </div>
 
-// Views: today | upcoming | overdue | completed
-let currentView = "today";
-// Buckets: Daily | Weekly | Monthly | One-Off | All
-let currentBucket = "Daily";
-// Task selected for editing
-let selectedTaskId = null;
+      <div class="tabs">
+        <div class="tab active" data-view="today">Today</div>
+        <div class="tab" data-view="upcoming">Upcoming</div>
+        <div class="tab" data-view="overdue">Overdue</div>
+        <div class="tab" data-view="completed">Completed</div>
+      </div>
 
-//------------------------------------------------------
-// LOAD & SAVE
-//------------------------------------------------------
-function loadData() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw) {
-    try { return JSON.parse(raw); } catch(e) {}
-  }
-  return { tasks: { Daily: [], Weekly: [], Monthly: [], "One-Off": [] }};
-}
-function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
-}
-DATA = loadData();
+      <div class="left-card">
+        <div class="left-card-title" id="left-title"></div>
+        <div class="left-card-sub" id="left-sub"></div>
+        <div class="left-list" id="left-list"></div>
+      </div>
+    </aside>
 
-//------------------------------------------------------
-// TASK FLATTEN
-//------------------------------------------------------
-function flattenTasks() {
-  let out = [];
-  let id = 1;
-  const buckets = ["Daily","Weekly","Monthly","One-Off"];
-  for (const b of buckets) {
-    const list = DATA.tasks[b] || [];
-    list.forEach((t, idx) => {
-      out.push({
-        id: id++, bucket: b, bucketIndex: idx,
-        text: t.text,
-        done: !!t.done,
-        note: t.note || "",
-        priority: t.priority || "Medium",
-        dueRaw: t.due || null,
-        remindRaw: t.reminder || null,
-        due: t.due ? new Date(t.due) : null,
-        reminder: t.reminder ? new Date(t.reminder) : null
+    <!-- RIGHT PANE -->
+    <main class="main">
+      <div class="main-header">
+        <div class="main-title-block">
+          <div class="main-title">Task buckets & schedule</div>
+          <div class="main-subtitle">Daily / Weekly / Monthly / One-Off / All</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn" id="exportBtn">Export JSON</button>
+          <label class="btn" style="cursor:pointer;">
+            Import JSON
+            <input type="file" id="importFile" accept="application/json" style="display:none" />
+          </label>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <!-- MAIN CARD -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title" id="bucket-title">Daily</div>
+            <div class="pill-row">
+              <div class="pill active" data-bucket="Daily">Daily</div>
+              <div class="pill" data-bucket="Weekly">Weekly</div>
+              <div class="pill" data-bucket="Monthly">Monthly</div>
+              <div class="pill" data-bucket="One-Off">One-Off</div>
+              <div class="pill" data-bucket="All">All</div>
+            </div>
+          </div>
+
+          <div class="add-row">
+            <input id="add-text" type="text" placeholder="Add a new task to this bucket..." />
+            <button id="add-btn">Add</button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:50px;">Done</th>
+                  <th id="th-bucket" style="width:80px; display:none;">Bucket</th>
+                  <th>Task</th>
+                  <th style="width:110px;">When</th>
+                  <th style="width:90px;">Priority</th>
+                  <th style="width:130px;">Reminder</th>
+                  <th style="width:160px;">Note</th>
+                </tr>
+              </thead>
+              <tbody id="task-body"></tbody>
+            </table>
+          </div>
+
+          <div class="details" id="details-panel">
+            <div>
+              <label for="d-name">Task name</label>
+              <input id="d-name" type="text" />
+            </div>
+            <div>
+              <label for="d-note">Note</label>
+              <input id="d-note" type="text" />
+            </div>
+            <div>
+              <label for="d-priority">Priority</label>
+              <select id="d-priority">
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+              </select>
+            </div>
+            <div>
+              <label for="d-due">Due date (YYYY-MM-DD)</label>
+              <input id="d-due" type="text" />
+            </div>
+            <div>
+              <label for="d-remind">Reminder (YYYY-MM-DD HH:MM)</label>
+              <input id="d-remind" type="text" />
+            </div>
+            <button class="btn details-save" id="details-save">Save changes</button>
+          </div>
+        </section>
+
+        <!-- NOTIFICATIONS -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Notification center</div>
+              <div class="card-subtitle">Click to jump to the right view.</div>
+            </div>
+          </div>
+          <div class="notif-list" id="notif-list"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ---------- BASIC DATA MODEL ----------
+
+    const STORAGE_KEY = "greg_todo_data_v2";
+
+    // Schema:
+    // DATA = { tasks: { Daily: [ {text, done, note, priority, due, reminder} ], Weekly: [...], ... } }
+
+    let DATA = null;
+    let FLAT = []; // flattened list of tasks with ids
+    let currentView = "today"; // today | upcoming | overdue | completed
+    let currentBucket = "Daily"; // Daily | Weekly | Monthly | One-Off | All
+    let selectedId = null;
+
+    function defaultData() {
+      return {
+        tasks: {
+          Daily: [
+            { text: "Review Amazon", done: false, note: "", priority: "Medium", due: null, reminder: null }
+          ],
+          Weekly: [],
+          Monthly: [],
+          "One-Off": []
+        }
+      };
+    }
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return defaultData();
+        const parsed = JSON.parse(raw);
+        if (!parsed.tasks) return defaultData();
+        return parsed;
+      } catch (e) {
+        return defaultData();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+    }
+
+    DATA = loadData();
+
+    // normalize tasks structure
+    ["Daily", "Weekly", "Monthly", "One-Off"].forEach(b => {
+      if (!DATA.tasks[b]) DATA.tasks[b] = [];
+    });
+
+    function parseDate(str) {
+      if (!str) return null;
+      const d = new Date(str);
+      if (isNaN(d.getTime())) return null;
+      return d;
+    }
+
+    function startOfToday() {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function endOfToday() {
+      const d = new Date();
+      d.setHours(23, 59, 59, 999);
+      return d;
+    }
+
+    function rebuildFlat() {
+      const out = [];
+      let id = 1;
+      const buckets = ["Daily", "Weekly", "Monthly", "One-Off"];
+      buckets.forEach(bucket => {
+        const list = DATA.tasks[bucket] || [];
+        list.forEach((t, idx) => {
+          const dueDate = parseDate(t.due);
+          const reminderDate = parseDate(t.reminder);
+          out.push({
+            id,
+            bucket,
+            index: idx,
+            text: t.text || "",
+            done: !!t.done,
+            note: t.note || "",
+            priority: t.priority || "Medium",
+            dueRaw: t.due || "",
+            due: dueDate,
+            reminderRaw: t.reminder || "",
+            reminder: reminderDate
+          });
+          id += 1;
+        });
+      });
+      FLAT = out;
+    }
+
+    // ---------- FILTERING ----------
+
+    function filterFlat() {
+      const todayStart = startOfToday();
+      const todayEnd = endOfToday();
+
+      return FLAT.filter(t => {
+        // bucket filter
+        if (currentView !== "completed" && currentBucket !== "All") {
+          if (t.bucket !== currentBucket) return false;
+        }
+
+        if (currentView === "completed") {
+          return t.done;
+        }
+
+        if (currentView === "today") {
+          // daily bucket always counts as today
+          if (t.bucket === "Daily") return true;
+          if (t.due && t.due >= todayStart && t.due <= todayEnd) return true;
+          return false;
+        }
+
+        if (currentView === "upcoming") {
+          if (t.due && t.due > todayEnd) return true;
+          return false;
+        }
+
+        if (currentView === "overdue") {
+          if (!t.done && t.due && t.due < todayStart) return true;
+          return false;
+        }
+
+        return true;
+      });
+    }
+
+    // ---------- LEFT SUMMARY ----------
+
+    function renderLeft() {
+      const titleEl = document.getElementById("left-title");
+      const subEl = document.getElementById("left-sub");
+      const listEl = document.getElementById("left-list");
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "short",
+        day: "numeric"
+      });
+
+      const items = filterFlat();
+
+      if (currentView === "completed") {
+        titleEl.textContent = dateStr + " · Completed";
+        subEl.textContent = "Everything you've marked done (across all buckets).";
+        listEl.innerHTML = items
+          .slice(0, 5)
+          .map(t => "<div class='left-list-item'>• " + t.text + "</div>")
+          .join("") || "<div class='left-list-item'>No completed items yet.</div>";
+        return;
+      }
+
+      if (currentView === "overdue") {
+        titleEl.textContent = dateStr + " · Overdue";
+        subEl.textContent = "Tasks that slipped past their due date.";
+        listEl.innerHTML = items
+          .slice(0, 5)
+          .map(t => "<div class='left-list-item'>• " + t.text + "</div>")
+          .join("") || "<div class='left-list-item'>No overdue items.</div>";
+        return;
+      }
+
+      if (currentView === "upcoming") {
+        titleEl.textContent = dateStr + " · Upcoming";
+        subEl.textContent = "What’s queued up next.";
+        listEl.innerHTML = items
+          .slice(0, 5)
+          .map(t => "<div class='left-list-item'>• " + t.text + "</div>")
+          .join("") || "<div class='left-list-item'>No upcoming items.</div>";
+        return;
+      }
+
+      // today
+      titleEl.textContent = dateStr + " · Today";
+      subEl.textContent = "Top items I’d watch for you today:";
+      listEl.innerHTML = items
+        .slice(0, 5)
+        .map(t => "<div class='left-list-item'>• " + t.text + "</div>")
+        .join("") || "<div class='left-list-item'>Nothing on the radar.</div>";
+    }
+
+    // ---------- TABLE RENDER ----------
+
+    function renderTable() {
+      const body = document.getElementById("task-body");
+      const thBucket = document.getElementById("th-bucket");
+
+      const showBucketCol = currentBucket === "All" || currentView === "completed";
+      thBucket.style.display = showBucketCol ? "table-cell" : "none";
+
+      const rows = filterFlat();
+
+      body.innerHTML = "";
+
+      if (!rows.length) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = "<td colspan='7' style='color:#94a3b8;'>No tasks in this view.</td>";
+        body.appendChild(tr);
+        return;
+      }
+
+      rows.forEach(t => {
+        const tr = document.createElement("tr");
+        tr.dataset.id = String(t.id);
+        if (t.done) tr.classList.add("done");
+
+        const whenLabel =
+          t.dueRaw ||
+          (t.bucket === "Daily" ? "Daily" : "");
+
+        const reminderLabel = t.reminderRaw || "";
+
+        tr.innerHTML =
+          "<td><input type='checkbox' data-id='" + t.id + "'" + (t.done ? " checked" : "") + "></td>" +
+          "<td style='display:" + (showBucketCol ? "table-cell" : "none") + ";'>" + t.bucket + "</td>" +
+          "<td>" + t.text + "</td>" +
+          "<td>" + whenLabel + "</td>" +
+          "<td>" + t.priority + "</td>" +
+          "<td>" + reminderLabel + "</td>" +
+          "<td>" + (t.note || "") + "</td>";
+
+        tr.addEventListener("click", function (e) {
+          if (e.target.tagName === "INPUT") return;
+          openDetails(t.id);
+        });
+
+        const checkbox = tr.querySelector("input[type=checkbox]");
+        checkbox.addEventListener("change", function () {
+          setDone(t.id, checkbox.checked);
+        });
+
+        body.appendChild(tr);
+      });
+    }
+
+    // ---------- DETAILS PANEL ----------
+
+    function openDetails(id) {
+      selectedId = id;
+      const t = FLAT.find(x => x.id === id);
+      if (!t) return;
+
+      const panel = document.getElementById("details-panel");
+      panel.style.display = "flex";
+
+      document.getElementById("d-name").value = t.text;
+      document.getElementById("d-note").value = t.note;
+      document.getElementById("d-priority").value = t.priority;
+      document.getElementById("d-due").value = t.dueRaw || "";
+      document.getElementById("d-remind").value = t.reminderRaw || "";
+    }
+
+    document.getElementById("details-save").addEventListener("click", function () {
+      if (!selectedId) return;
+      const t = FLAT.find(x => x.id === selectedId);
+      if (!t) return;
+
+      const list = DATA.tasks[t.bucket];
+      const base = list[t.index];
+
+      base.text = document.getElementById("d-name").value || "";
+      base.note = document.getElementById("d-note").value || "";
+      base.priority = document.getElementById("d-priority").value || "Medium";
+
+      const dVal = document.getElementById("d-due").value.trim();
+      base.due = dVal || null;
+
+      const rVal = document.getElementById("d-remind").value.trim();
+      base.reminder = rVal || null;
+
+      saveData();
+      rebuildFlat();
+      renderAll();
+    });
+
+    // ---------- DONE / UNDO ----------
+
+    function setDone(id, value) {
+      const t = FLAT.find(x => x.id === id);
+      if (!t) return;
+      const list = DATA.tasks[t.bucket];
+      const base = list[t.index];
+      base.done = !!value;
+      saveData();
+      rebuildFlat();
+      renderAll();
+    }
+
+    // ---------- ADD TASK ----------
+
+    document.getElementById("add-btn").addEventListener("click", addTask);
+    document.getElementById("add-text").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") addTask();
+    });
+
+    function addTask() {
+      const input = document.getElementById("add-text");
+      const text = input.value.trim();
+      if (!text) return;
+
+      if (currentBucket === "All") {
+        // default new tasks into Daily if All is selected
+        DATA.tasks["Daily"].push({
+          text: text,
+          done: false,
+          note: "",
+          priority: "Medium",
+          due: null,
+          reminder: null
+        });
+      } else {
+        DATA.tasks[currentBucket].push({
+          text: text,
+          done: false,
+          note: "",
+          priority: "Medium",
+          due: null,
+          reminder: null
+        });
+      }
+
+      input.value = "";
+      saveData();
+      rebuildFlat();
+      renderAll();
+    }
+
+    // ---------- EXPORT / IMPORT ----------
+
+    document.getElementById("exportBtn").addEventListener("click", function () {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        tasks: DATA.tasks
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+        type: "application/json"
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "greg_tasks_export.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("importFile").addEventListener("change", async function (e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const tasks = parsed.tasks || parsed;
+        if (!tasks || typeof tasks !== "object") {
+          alert("JSON format not recognized.");
+          return;
+        }
+
+        DATA.tasks = {
+          Daily: tasks.Daily || [],
+          Weekly: tasks.Weekly || [],
+          Monthly: tasks.Monthly || [],
+          "One-Off": tasks["One-Off"] || tasks.OneOff || []
+        };
+
+        saveData();
+        rebuildFlat();
+        currentView = "today";
+        currentBucket = "Daily";
+        selectedId = null;
+        renderAll();
+      } catch (err) {
+        alert("Import failed. Make sure it's valid JSON.");
+      } finally {
+        e.target.value = "";
+      }
+    });
+
+    // ---------- NOTIFICATIONS (click routing only) ----------
+
+    function renderNotifs() {
+      const box = document.getElementById("notif-list");
+      box.innerHTML = "";
+
+      const todayStart = startOfToday();
+      const todayEnd = endOfToday();
+      const todayTasks = FLAT.filter(t => {
+        if (t.bucket === "Daily") return true;
+        if (t.due && t.due >= todayStart && t.due <= todayEnd) return true;
+        return false;
+      });
+
+      const overdueTasks = FLAT.filter(t => !t.done && t.due && t.due < todayStart);
+      const upcomingTasks = FLAT.filter(t => t.due && t.due > todayEnd);
+
+      const items = [];
+
+      items.push({
+        title: "Daily Check-In",
+        meta: "Today · overview",
+        body: todayTasks.length
+          ? "You have " + todayTasks.length + " tasks in today's view."
+          : "Nothing on today's radar.",
+        action: "today"
+      });
+
+      if (overdueTasks.length) {
+        items.push({
+          title: "Overdue Tasks",
+          meta: "Needs attention",
+          body: overdueTasks.length + " overdue tasks.",
+          action: "overdue"
+        });
+      }
+
+      if (upcomingTasks.length) {
+        items.push({
+          title: "Upcoming Tasks",
+          meta: "Looking ahead",
+          body: upcomingTasks.length + " upcoming tasks with due dates.",
+          action: "upcoming"
+        });
+      }
+
+      items.forEach(n => {
+        const div = document.createElement("div");
+        div.className = "notif-item";
+        div.innerHTML =
+          "<div class='notif-title'>" + n.title + "</div>" +
+          "<div class='notif-meta'>" + n.meta + "</div>" +
+          "<div class='notif-body'>" + n.body + "</div>";
+        div.addEventListener("click", function () {
+          if (n.action === "today") {
+            setView("today");
+          } else if (n.action === "overdue") {
+            setView("overdue");
+            setBucket("All");
+          } else if (n.action === "upcoming") {
+            setView("upcoming");
+            setBucket("All");
+          }
+        });
+        box.appendChild(div);
+      });
+    }
+
+    // ---------- VIEW / BUCKET SWITCH ----------
+
+    function setView(view) {
+      currentView = view;
+      document.querySelectorAll(".tab").forEach(el => {
+        el.classList.toggle("active", el.dataset.view === view);
+      });
+      // Completed view always shows all buckets
+      if (view === "completed") {
+        setBucket("All", true);
+      }
+      renderAll();
+    }
+
+    function setBucket(bucket, silent) {
+      currentBucket = bucket;
+      document.querySelectorAll(".pill").forEach(el => {
+        el.classList.toggle("active", el.dataset.bucket === bucket);
+      });
+      document.getElementById("bucket-title").textContent = bucket;
+      if (!silent) {
+        renderAll();
+      }
+    }
+
+    document.querySelectorAll(".tab").forEach(el => {
+      el.addEventListener("click", function () {
+        setView(el.dataset.view);
       });
     });
-  }
-  return out;
-}
-let ALL = flattenTasks();
 
-//------------------------------------------------------
-// FILTERING LOGIC
-//------------------------------------------------------
-function startOfDay(d) { const x=new Date(d); x.setHours(0,0,0,0); return x; }
-function endOfDay(d) { const x=new Date(d); x.setHours(23,59,59,999); return x; }
-
-function filterTasks() {
-  const now = new Date();
-  const sot = startOfDay(now);
-  const eot = endOfDay(now);
-
-  return ALL.filter(t => {
-    if (currentBucket !== "All" && currentView !== "completed") {
-      if (t.bucket !== currentBucket) return false;
-    }
-    if (currentView === "today") {
-      if (t.bucket === "Daily") return true;
-      if (t.due && t.due >= sot && t.due <= eot) return true;
-      return false;
-    }
-    if (currentView === "upcoming") {
-      if (t.due && t.due > eot) return true;
-      return false;
-    }
-    if (currentView === "overdue") {
-      if (!t.done && t.due && t.due < sot) return true;
-      return false;
-    }
-    if (currentView === "completed") return t.done;
-
-    return true;
-  });
-}
-
-//------------------------------------------------------
-// RENDER LEFT SUMMARY
-//------------------------------------------------------
-function renderLeftSummary() {
-  const box = document.getElementById("left-summary");
-  const tasks = filterTasks();
-  const now = new Date();
-  const dayStr = now.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"});
-
-  if (currentView === "completed") {
-    box.innerHTML = `<b>${dayStr}</b><br>Completed items shown here.<br>${tasks.length} items completed.`;
-    return;
-  }
-
-  if (currentView === "overdue") {
-    box.innerHTML = `<b>${dayStr}</b><br>Overdue tasks need attention.<br>${tasks.length} overdue.`;
-    return;
-  }
-
-  if (currentView === "upcoming") {
-    box.innerHTML = `<b>${dayStr}</b><br>Upcoming tasks queued.<br>${tasks.length} coming.`;
-    return;
-  }
-
-  // TODAY
-  const top3 = tasks.slice(0,3).map(t=>`• ${t.text}`).join("<br>");
-  box.innerHTML = `<b>${dayStr}</b><br>Today's focus:<br>${top3 || "No items."}`;
-}
-
-//------------------------------------------------------
-// RENDER TABLE
-//------------------------------------------------------
-function renderTable() {
-  const tbody = document.getElementById("task-body");
-  tbody.innerHTML = "";
-
-  const colBucket = document.getElementById("col-bucket");
-  colBucket.style.display = (currentBucket === "All" || currentView === "completed") ? "table-cell":"none";
-
-  const list = filterTasks();
-  if (!list.length) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="7" style="color:#94a3b8;">No tasks.</td>`;
-    tbody.appendChild(tr);
-    return;
-  }
-
-  list.forEach(t => {
-    const tr = document.createElement("tr");
-    if (t.done) tr.classList.add("done");
-    tr.dataset.id = t.id;
-
-    tr.innerHTML = `
-      <td><input type="checkbox" data-id="${t.id}" ${t.done?"checked":""}></td>
-      <td style="display:${(currentBucket==="All"||currentView==="completed")?"table-cell":"none"};">${t.bucket}</td>
-      <td>${t.text}</td>
-      <td>${t.dueRaw || (t.bucket==="Daily"?"Daily":"")}</td>
-      <td>${t.priority}</td>
-      <td>${t.remindRaw || ""}</td>
-      <td>${t.note || ""}</td>
-    `;
-
-    tr.addEventListener("click", e=>{
-      if (e.target.tagName === "INPUT") return;
-      openDetails(t.id);
+    document.querySelectorAll(".pill").forEach(el => {
+      el.addEventListener("click", function () {
+        setBucket(el.dataset.bucket);
+      });
     });
 
-    const chk = tr.querySelector("input[type=checkbox]");
-    chk.addEventListener("change", ()=>{
-      toggleDone(t.id, chk.checked);
-    });
+    // ---------- MASTER RENDER ----------
 
-    tbody.appendChild(tr);
-  });
-}
+    function renderAll() {
+      rebuildFlat();
+      renderLeft();
+      renderTable();
+      renderNotifs();
+      // Keep details panel content if selected task still exists
+      if (selectedId) {
+        const stillThere = FLAT.find(x => x.id === selectedId);
+        if (!stillThere) {
+          document.getElementById("details-panel").style.display = "none";
+          selectedId = null;
+        }
+      }
+    }
 
-//------------------------------------------------------
-// DETAILS PANEL
-//------------------------------------------------------
-function openDetails(id) {
-  selectedTaskId = id;
-  const t = ALL.find(x=>x.id===id);
-  const p = document.getElementById("details-panel");
-  p.style.display = "flex";
-  document.getElementById("d-name").value = t.text;
-  document.getElementById("d-note").value = t.note;
-  document.getElementById("d-priority").value = t.priority;
-  document.getElementById("d-due").value = t.dueRaw || "";
-  document.getElementById("d-remind").value = t.remindRaw || "";
-}
+    // ---------- INIT ----------
 
-document.getElementById("d-save").addEventListener("click", ()=>{
-  if (!selectedTaskId) return;
-  const t = ALL.find(x=>x.id===selectedTaskId);
-  const list = DATA.tasks[t.bucket];
-  const base = list[t.bucketIndex];
-
-  base.text = document.getElementById("d-name").value;
-  base.note = document.getElementById("d-note").value;
-  base.priority = document.getElementById("d-priority").value;
-  base.due = document.getElementById("d-due").value || null;
-  base.reminder = document.getElementById("d-remind").value || null;
-
-  saveData(); ALL = flattenTasks(); renderAll();
-});
-
-//------------------------------------------------------
-// DONE / UNDO
-//------------------------------------------------------
-function toggleDone(id, val) {
-  const t = ALL.find(x=>x.id===id);
-  const base = DATA.tasks[t.bucket][t.bucketIndex];
-  base.done = val;
-  saveData(); ALL = flattenTasks(); renderAll();
-}
-
-//------------------------------------------------------
-// ADD TASK
-//------------------------------------------------------
-document.getElementById("add-btn").addEventListener("click", addTask);
-function addTask() {
-  const txt = document.getElementById("add-text").value.trim();
-  if (!txt) return;
-  if (!DATA.tasks[currentBucket]) DATA.tasks[currentBucket] = [];
-  DATA.tasks[currentBucket].push({
-    text: txt, done:false, note:"", priority:"Medium",
-    due:null, reminder:null
-  });
-  document.getElementById("add-text").value = "";
-  saveData(); ALL = flattenTasks(); renderAll();
-}
-
-//------------------------------------------------------
-// EXPORT / IMPORT
-//------------------------------------------------------
-document.getElementById("exportBtn").addEventListener("click", ()=>{
-  const blob = new Blob([JSON.stringify(DATA,null,2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href = url; a.download="greg_tasks.json"; a.click(); URL.revokeObjectURL(url);
-});
-
-document.getElementById("importFile").addEventListener("change", async e=>{
-  const f = e.target.files[0]; if (!f) return;
-  const text = await f.text();
-  try{
-    const obj = JSON.parse(text);
-    if (obj.tasks) DATA = obj;
-    saveData(); ALL = flattenTasks(); currentView = "today"; currentBucket = "Daily";
+    rebuildFlat();
     renderAll();
-  } catch(err){ alert("Invalid JSON"); }
-});
-
-//------------------------------------------------------
-// NOTIFICATIONS (click routing only, no actual notifications)
-//------------------------------------------------------
-function renderNotifs() {
-  const box = document.getElementById("notif-list");
-  box.innerHTML = "";
-
-  const overdue = ALL.filter(t=>!t.done && t.due && t.due < startOfDay(new Date()));
-  const upcoming = ALL.filter(t=>t.due && t.due > endOfDay(new Date()));
-
-  const def = [
-    {title:"Daily Check-In",time:"Today 8:00",body:"Your daily tasks.",action:"today"},
-    overdue.length?{title:"Overdue Tasks",time:"Now",body:`${overdue.length} overdue.",action:"overdue"}:null,
-    upcoming.length?{title:"Upcoming Tasks",time:"Soon",body:`${upcoming.length} upcoming.",action:"upcoming"}:null,
-  ].filter(Boolean);
-
-  def.forEach(n=>{
-    const d=document.createElement("div"); d.className="notif";
-    d.innerHTML = `<b>${n.title}</b><br><span style='color:#94a3b8;font-size:11px;'>${n.time}</span><br>${n.body}`;
-    d.addEventListener("click",()=>{
-      if (n.action==="today") setView("today");
-      if (n.action==="overdue") setView("overdue"), currentBucket="All";
-      if (n.action==="upcoming") setView("upcoming"), currentBucket="All";
-    });
-    box.appendChild(d);
-  });
-}
-
-//------------------------------------------------------
-// VIEW / BUCKET SWITCH
-//------------------------------------------------------
-function setView(v) {
-  currentView = v;
-  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-  document.querySelector(`.tab[data-view='${v}']`).classList.add("active");
-  renderAll();
-}
-function setBucket(b) {
-  currentBucket = b;
-  document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));
-  document.querySelector(`.pill[data-bucket='${b}']`).classList.add("active");
-  document.getElementById("bucket-title").textContent = b;
-  renderAll();
-}
-document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>setView(t.dataset.view)));
-document.querySelectorAll(".pill").forEach(p=>p.addEventListener("click",()=>setBucket(p.dataset.bucket)));
-
-//------------------------------------------------------
-// MASTER RENDER
-//------------------------------------------------------
-function renderAll() {
-  ALL = flattenTasks();
-  renderLeftSummary();
-  renderTable();
-  renderNotifs();
-}
-
-//------------------------------------------------------
-// INIT
-//------------------------------------------------------
-renderAll();
+  </script>
+</body>
+</html>
